@@ -10,6 +10,7 @@ export default class Tile{
         this.x = x
         this.y = y
     }
+    //my comment\
 
     sumValues(tile){
         return new Tile(this.value + tile.value)

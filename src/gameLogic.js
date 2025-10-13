@@ -8,7 +8,7 @@ let tileList = []
 function render(list, styleList) {
   const gameTiles = document.querySelector(".gameTiles")
 
-  gameTiles.innerHTML = ""
+  if (tileList.length == 0) gameTiles.innerHTML = ""
   for (let item of list) {
     const foundedItem = tileList.find((tileListItem) => tileListItem.id == item.id)
     if (!foundedItem) {
@@ -37,8 +37,8 @@ export default function start() {
   const newGameBtn = document.querySelector(".newGame")
   newGameBtn.addEventListener("click", () => {
     game.newGame()
-    render(game.tiles, game.styleTable)
     tileList = []
+    render(game.tiles, game.styleTable)
   })
 
   document.addEventListener("keydown", (e) => {
@@ -47,6 +47,20 @@ export default function start() {
       render(game.tiles, game.styleTable)
     }
 
+    if (e.code == "ArrowRight") {
+      game.moveRigth()
+      render(game.tiles, game.styleTable)
+    }
+
+    if (e.code == "ArrowUp") {
+      game.moveUp()
+      render(game.tiles, game.styleTable)
+    }
+
+    if (e.code == "ArrowDown") {
+      game.moveDown()
+      render(game.tiles, game.styleTable)
+    }
   })
   game.newGame()
   render(game.tiles, game.styleTable)

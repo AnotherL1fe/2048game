@@ -56,16 +56,48 @@ export default class Game {
 
         let [x, y] = randomCoords.split("-")
 
-        this.tiles.push(new Tile(2, x, y))
+        this.tiles.push(new Tile(2, +x, +y))
 
 
     }
 
-    moveDown() { }
-    moveUp() { }
-    moveRigth() { }
+
+    isCollide() {
+        for (let i = 0; i < this.tiles.length; i++) {
+            for (let j = i + 1; j < this.tiles.length; j++) {
+                const tile1 = this.tiles[i];
+                const tile2 = this.tiles[j];
+
+                const isHorizontalNeighbor = tile1.y === tile2.y && Math.abs(tile1.x - tile2.x) === 1;
+                const isVerticalNeighbor = tile1.x === tile2.x && Math.abs(tile1.y - tile2.y) === 1;
+
+                if (isHorizontalNeighbor || isVerticalNeighbor) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    moveDown() {
+        for (let tile of this.tiles) {
+            tile.y = tile.y + 1 == 5 ? 4 : tile.y + 1
+        }
+    }
+    moveUp() {
+        for (let tile of this.tiles) {
+            tile.y = tile.y - 1 == 0 ? 1 : tile.y - 1
+        }
+    }
+    moveRigth() {
+        for (let tile of this.tiles) {
+            tile.x = tile.x + 1 == 5 ? 4 : tile.x + 1
+        }
+    }
     moveLeft() {
-        this.tiles = this.tiles.map((tile) => ({...tile, x: tile.x - 1 == 0 ? 1 : tile.x - 1}))
+        for (let tile of this.tiles) {
+            tile.x = tile.x - 1 == 0 ? 1 : tile.x - 1
+        }
     }
 
 }
