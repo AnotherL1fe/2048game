@@ -1,103 +1,170 @@
-import Tile from "./Tile"
+import Tile from "./Tile.js"
 
 export default class Game {
-    static generateStyleTable(tileCount, tileSize) {
+    static generateStyleTable(tileCount, tileSize){
         const table = {}
-        for (let y = 1; y <= tileCount; y++) {
-            for (let x = 1; x <= tileCount; x++) {
-                let left = `left: ${(x - 1) * tileSize + (x - 1) * 10}px;`
-                let top = `top: ${(y - 1) * tileSize + (y - 1) * 10}px;`
+        for (let y = 0; y <= tileCount; y++){
+            for (let x = 0; x <= tileCount; x++){
+                let left = `left: ${(x) * tileSize + (x) * 10}px;`
+                let top = `top: ${(y) * tileSize + (y) * 10}px;`
                 table[`${x}-${y}`] = `${left} ${top}`
             }
 
         }
-        return table
+        return  table
     }
 
-    constructor() {
+    constructor(){
         this.tileSize = 100
         this.tileCount = 4
 
         this.score = 0
-        this.tiles = []
+        this.tiles = [
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null]
+        ]
 
         this.styleTable = Game.generateStyleTable(this.tileCount, this.tileSize)
     }
 
-    getTiles() {
+    getTiles(){
         return this.tiles
     }
-    newGame() {
+    newGame(){
         this.score = 0;
-        this.tiles = []
-        this.spawnTile()
-        this.spawnTile()
+        this.tiles = [
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null]
+        ]
+        this.spawnTile();
+        this.spawnTile();
     }
 
-    findEmptyCoords() {
-        const emptyCoords = []
-        for (let y = 1; y <= this.tileCount; y++) {
-            for (let x = 1; x <= this.tileCount; x++) {
-                emptyCoords.push(`${x}-${y}`)
+    findEmptyCoords(){
+        let emptyCoords = [];
+        for(let y = 0; y < this.tiles.length; y++){
+            for(let x = 0; x < this.tiles[y].length; x++){
+                if (!this.tiles[y][x]) emptyCoords.push(`${x}-${y}`);
             }
-
         }
-        return emptyCoords.filter((item) =>
-            !this.tiles.find((tile) =>
-                item == `${tile.x}-${tile.y}`)
-        )
+
+        return emptyCoords
+
+        // let c = []
+        // for (let item of emptyCoords){
+        //     let find = false
+        //     for(let tile of this.tiles){
+        //         if ( item === `${tile.x}-${tile.y}`) {
+        //             find = true
+        //             break
+        //         }
+        //     }
+
+        //     if (!find) c.push(item)
+        // }
+
+
 
     }
 
-    spawnTile() {
-        const emptyCoords = this.findEmptyCoords()
-
-        let randomCoords = emptyCoords[Math.floor(Math.random() * emptyCoords.length)]
-
-        let [x, y] = randomCoords.split("-")
-
-        this.tiles.push(new Tile(2, +x, +y))
-
+    isCollide(tile){
 
     }
+    
+    spawnTile(x, y, v = Math.floor(Math.random() * 2 + 1) * 2){
+        if(!x || !y){
+            const emptyCoords = this.findEmptyCoords()
+            let randomCoords = emptyCoords[Math.floor(Math.random() * emptyCoords.length)]
+            const [newX, newY] = randomCoords.split("-");
+            x = newX;
+            y = newY;
+        }
 
+        this.tiles[y][x] = new Tile(v, +x, +y)        
+    }
 
-    isCollide() {
-        for (let i = 0; i < this.tiles.length; i++) {
-            for (let j = i + 1; j < this.tiles.length; j++) {
-                const tile1 = this.tiles[i];
-                const tile2 = this.tiles[j];
+    moveDown(){
+        for(let x = 0; x < this.tileCount; x++){
+            for(let y = this.tileCount - 2; y >= 0; y--){
+                if(!this.tiles[y][x]) continue
 
-                const isHorizontalNeighbor = tile1.y === tile2.y && Math.abs(tile1.x - tile2.x) === 1;
-                const isVerticalNeighbor = tile1.x === tile2.x && Math.abs(tile1.y - tile2.y) === 1;
+                for(let i = y + 1; i < this.tileCount; i++){
+                    if(this.tiles[i][x]){
+                        if(i == y + 1) break;
+                        this.tiles[i - 1][x] = this.tiles[y][x];
+                        this.tiles[y][x] = null;
+                        break;
+                    }
 
-                if (isHorizontalNeighbor || isVerticalNeighbor) {
-                    return true;
+                    if(!this.tiles[i][x] && i == this.tileCount - 1){
+                        this.tiles[i][x] = this.tiles[y][x];
+                        this.tiles[y][x] = null;
+                        break;
+                    }
                 }
             }
         }
-        return false;
     }
+    moveUp(){
+        for(let x = 0; x < this.tileCount; x++){
+            for(let y = 1; y < this.tileCount; y++){
+                if(!this.tiles[y][x]) continue
 
-    moveDown() {
-        for (let tile of this.tiles) {
-            tile.y = tile.y + 1 == 5 ? 4 : tile.y + 1
-        }
-    }
-    moveUp() {
-        for (let tile of this.tiles) {
-            tile.y = tile.y - 1 == 0 ? 1 : tile.y - 1
-        }
-    }
-    moveRigth() {
-        for (let tile of this.tiles) {
-            tile.x = tile.x + 1 == 5 ? 4 : tile.x + 1
-        }
-    }
-    moveLeft() {
-        for (let tile of this.tiles) {
-            tile.x = tile.x - 1 == 0 ? 1 : tile.x - 1
-        }
-    }
+                for(let i = y - 1; i >= 0; i--){
+                    if(this.tiles[i][x]){
+                        if(i == y - 1) break;
+                        this.tiles[i + 1][x] = this.tiles[y][x];
+                        this.tiles[y][x] = null;
+                        break;
+                    }
 
+                    if(!this.tiles[i][x] && i == 0){
+                        this.tiles[i][x] = this.tiles[y][x];
+                        this.tiles[y][x] = null;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    moveRight(){
+            for(let y = 0; y < this.tiles.length; y++){
+                for(let x = this.tiles[y].length - 2; x >= 0; x--){
+                    if(!this.tiles[y][x]) continue
+                    for(let i = x + 1; i < this.tiles[y].length; i++){
+                        if(this.tiles[y][i]){
+                            if(i == x + 1) break
+                            this.tiles[y][i - 1] = this.tiles[y][x];
+                            this.tiles[y][x] = null;
+                    }
+                    if(!this.tiles[y][i] && i == this.tiles[y].length - 1){
+                        this.tiles[y][i] = this.tiles[y][x];
+                        this.tiles[y][x] = null;
+                    }
+                } 
+            }
+        }
+    }
+    moveLeft(){
+        for(let y = 0; y < this.tiles.length; y++){
+            for(let x = 1; x < this.tiles[y].length; x++){
+                if(!this.tiles[y][x]) continue
+                for(let i = x - 1; i >= 0; i--){
+                    if(this.tiles[y][i]){
+                        if(i == x - 1) break
+                        this.tiles[y][i + 1] = this.tiles[y][x];
+                        this.tiles[y][x] = null;
+                    }
+                    if(!this.tiles[y][i] && i == 0){
+                        this.tiles[y][i] = this.tiles[y][x];
+                        this.tiles[y][x] = null;
+                    }
+                } 
+            }
+        }
+    }
 }
