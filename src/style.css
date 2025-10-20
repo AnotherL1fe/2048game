@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #7c6e6e;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,13 +13,27 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+.scorePanel {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: #a59595;
+  color: #1a1a1a;
+  margin-bottom: 20px;
 }
-a:hover {
-  color: #535bf2;
+
+.current-container {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: #442f2f;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.max-container {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: #442f2f;
+  color: white;
 }
 
 body {
@@ -30,39 +44,6 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -70,20 +51,24 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #553d3d;
   cursor: pointer;
   transition: border-color 0.25s;
+  width: 450px;
+  margin-bottom: 20px;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
 
-.gameField{
+.gameField {
   position: relative;
   background: #e1ab9e;
   width: 450px;
@@ -92,7 +77,7 @@ button:focus-visible {
   padding: 10px;
 }
 
-.gameBack{
+.gameBack {
   width: 430px;
   height: 430px;
   gap: 10px;
@@ -101,12 +86,14 @@ button:focus-visible {
   position: absolute;
 
 }
-.gameTiles{
+
+.gameTiles {
   width: 430px;
   height: 430px;
   position: absolute;
 }
-.row{
+
+.row {
   width: 100%;
   height: 100%;
   display: grid;
@@ -121,7 +108,7 @@ button:focus-visible {
   background: #392828;
 }
 
-.tile{
+.tile {
   width: 100px;
   height: 100px;
   background: red;
@@ -132,4 +119,70 @@ button:focus-visible {
   transition: all .4s;
   left: 0;
   top: 0;
+}
+
+.tile {
+  transition: all 0.15s ease-in-out;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 35px;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.tile-2 {
+  background: #eee4da;
+  color: #776e65;
+}
+
+.tile-4 {
+  background: #ede0c8;
+  color: #776e65;
+}
+
+.tile-8 {
+  background: #f2b179;
+  color: #f9f6f2;
+}
+
+.tile-16 {
+  background: #f59563;
+  color: #f9f6f2;
+}
+
+.tile-32 {
+  background: #f67c5f;
+  color: #f9f6f2;
+}
+
+.tile-64 {
+  background: #f65e3b;
+  color: #f9f6f2;
+}
+
+.tile-128 {
+  background: #edcf72;
+  color: #f9f6f2;
+}
+
+.tile-256 {
+  background: #edcc61;
+  color: #f9f6f2;
+}
+
+.tile-512 {
+  background: #edc850;
+  color: #f9f6f2;
+}
+
+.tile-1024 {
+  background: #edc53f;
+  color: #f9f6f2;
+}
+
+.tile-2048 {
+  background: #edc22e;
+  color: #f9f6f2;
 }

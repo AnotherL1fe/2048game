@@ -17,6 +17,7 @@ export default class Game {
         this.tileSize = 100
         this.tileCount = 4
 
+        this.maxScore = window.localStorage.getItem('maxScore') || 0
         this.score = 0
         this.tiles = [
             [null, null, null, null],
@@ -44,9 +45,9 @@ export default class Game {
         if (!this.previousTiles) return { moved: [], merged: [], new: [] };
 
         const changes = {
-            moved: [], // {id, fromX, fromY, toX, toY}
-            merged: [], // {id, fromIds: [], toX, toY, newValue}
-            new: [] // {id, x, y, value}
+            moved: [],
+            merged: [],
+            new: []
         };
 
         const previousMap = new Map();
@@ -72,7 +73,6 @@ export default class Game {
             }
         }
 
-        // Находим перемещенные тайлы
         for (let [id, currentPos] of currentMap) {
             const previousPos = previousMap.get(id);
             if (previousPos) {
@@ -86,7 +86,6 @@ export default class Game {
                     });
                 }
             } else {
-                // Новый тайл
                 changes.new.push({
                     id,
                     x: currentPos.x,
@@ -96,10 +95,8 @@ export default class Game {
             }
         }
 
-        // Находим объединенные тайлы (исчезнувшие id)
         for (let [id, previousPos] of previousMap) {
             if (!currentMap.has(id)) {
-                // Ищем новый тайл на этой позиции (результат объединения)
                 const currentTile = this.tiles[previousPos.y]?.[previousPos.x];
                 if (currentTile && currentTile.value === previousPos.value * 2) {
                     changes.merged.push({
