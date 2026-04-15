@@ -19,6 +19,7 @@ function createTileElement(tile, x, y, styleTable) {
     return tileElement;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 function animateTileMovement(tileElement, fromX, fromY, toX, toY, styleTable) {
     return new Promise((resolve) => {
         tileElement.style.transition = 'none';
@@ -35,6 +36,7 @@ function animateTileMovement(tileElement, fromX, fromY, toX, toY, styleTable) {
     });
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 function animateTileMerge(tileElement, newValue) {
     return new Promise((resolve) => {
         tileElement.style.transform = 'scale(1.1)';
@@ -48,6 +50,7 @@ function animateTileMerge(tileElement, newValue) {
     });
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 function animateNewTile(tileElement) {
     tileElement.style.transform = 'scale(0)';
 
@@ -57,18 +60,20 @@ function animateNewTile(tileElement) {
     });
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 async function renderWithAnimation(list, styleTable) {
     const gameTiles = document.querySelector(".gameTiles");
     const scoreElement = document.querySelector(".score");
 
+    
     if (tileList.size == 0) {
         gameTiles.innerHTML = ""
     }
-
     if (scoreElement) {
         scoreElement.textContent = game.score;
     }
 
+    
     const changes = game.getTileChanges();
 
     const moveAnimations = changes.moved.map(change => {
@@ -78,8 +83,10 @@ async function renderWithAnimation(list, styleTable) {
         }
     });
 
+    
     await Promise.all(moveAnimations);
 
+    
     const mergeAnimations = changes.merged.map(change => {
         const tileElement = tileList.get(change.id)?.dom;
         if (tileElement) {
@@ -87,16 +94,18 @@ async function renderWithAnimation(list, styleTable) {
         }
     });
 
+    
     await Promise.all(mergeAnimations);
 
+    
     const currentIds = new Set();
+    
     for (let y = 0; y < list.length; y++) {
         for (let x = 0; x < list.length; x++) {
             const item = list[y][x];
             if (item) currentIds.add(item.id);
         }
     }
-
     for (let [id, tileData] of tileList) {
         if (!currentIds.has(id)) {
             tileData.dom.remove();
@@ -140,6 +149,7 @@ async function renderWithAnimation(list, styleTable) {
     maxScore.innerHTML = game.maxScore
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 async function handleMove(direction) {
     const moved = game.move(direction);
     if (moved) {
@@ -154,6 +164,7 @@ async function handleMove(direction) {
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 export default function start() {
     const newGameBtn = document.querySelector(".newGame");
 
@@ -183,4 +194,3 @@ export default function start() {
     game.newGame();
     renderWithAnimation(game.tiles, game.styleTable);
 }
-
