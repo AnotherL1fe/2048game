@@ -7,7 +7,6 @@ export default class Tile {
         this.x = x;
         this.y = y;
     }
-
     sumValues(tile) {
         return new Tile(this.value + tile.value, this.x, this.y);
     }
