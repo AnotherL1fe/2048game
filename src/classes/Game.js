@@ -26,7 +26,7 @@ export default class Game {
             [null, null, null, null]
         ]
 
-        this.previousTiles = null; // Сохраняем предыдущее состояние для анимации
+        this.previousTiles = null;
         this.styleTable = Game.generateStyleTable(this.tileCount, this.tileSize)
         this.moved = false;
     }
@@ -35,12 +35,10 @@ export default class Game {
         return this.tiles
     }
 
-    // Сохраняем текущее состояние перед движением
     saveState() {
         this.previousTiles = JSON.parse(JSON.stringify(this.tiles));
     }
 
-    // Получаем изменения между состояниями
     getTileChanges() {
         if (!this.previousTiles) return { moved: [], merged: [], new: [] };
 
@@ -53,7 +51,6 @@ export default class Game {
         const previousMap = new Map();
         const currentMap = new Map();
 
-        // Собираем информацию о предыдущем состоянии
         for (let y = 0; y < this.previousTiles.length; y++) {
             for (let x = 0; x < this.previousTiles[y].length; x++) {
                 const tile = this.previousTiles[y][x];
@@ -63,7 +60,6 @@ export default class Game {
             }
         }
 
-        // Собираем информацию о текущем состоянии
         for (let y = 0; y < this.tiles.length; y++) {
             for (let x = 0; x < this.tiles[y].length; x++) {
                 const tile = this.tiles[y][x];
@@ -152,7 +148,7 @@ export default class Game {
     }
 
     move(direction) {
-        this.saveState(); // Сохраняем состояние перед движением
+        this.saveState();
         this.moved = false;
         let moved = false;
 
