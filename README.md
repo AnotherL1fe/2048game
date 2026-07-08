@@ -186,13 +186,6 @@ MIT License — свободно используйте в любых проек
 
 ---
 
-## 🙏 Благодарности
-
-- Оригинальная игра 2048 от [Gabriele Cirulli](https://gabrielecirulli.com/)
-- Вдохновение от сообщества разработчиков игр
-
----
-
 ## 📞 Контакты
 
 - GitHub: [@AnotherL1fe](https://github.com/AnotherL1fe)
