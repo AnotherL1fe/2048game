@@ -14,4 +14,20 @@ export default class Tile {
     sumValues(tile) {
         return new Tile(this.value + tile.value, this.x, this.y)
     }
+
+    // Create a copy with new position
+    moveTo(x, y) {
+        const newTile = new Tile(this.value, x, y, this.id)
+        newTile.isNew = this.isNew
+        newTile.isMerged = this.isMerged
+        newTile.isMoving = this.isMoving
+        return newTile
+    }
+
+    // Create a merged tile
+    static merge(tile1, tile2, x, y) {
+        const newTile = new Tile(tile1.value + tile2.value, x, y)
+        newTile.isMerged = true
+        return newTile
+    }
 }

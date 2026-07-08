@@ -15,23 +15,25 @@
     <div class="game-wrapper">
         <header class="game-header">
             <div class="logo-section">
-                <div class="game-title">2048</div>
-                <div class="game-subtitle">Собери 2048!</div>
+                <h1 class="game-title">2048</h1>
+                <p class="game-subtitle">Собери 2048!</p>
             </div>
             <div class="score-section">
                 <div class="score-chip current-score">
-                    <div class="score-label">Счет</div>
-                    <div class="score-value currentScore">0</div>
+                    <span class="score-icon">⭐</span>
+                    <span class="score-label">Счет</span>
+                    <span class="score-value currentScore">0</span>
                 </div>
                 <div class="score-chip max-score">
-                    <div class="score-label">Рекорд</div>
-                    <div class="score-value maxScore">0</div>
+                    <span class="score-icon">🏆</span>
+                    <span class="score-label">Рекорд</span>
+                    <span class="score-value maxScore">0</span>
                 </div>
             </div>
         </header>
 
         <div class="game-controls">
-            <button class="btn btn-new-game">Новая игра</button>
+            <button class="btn btn-new-game">🔄 Новая игра</button>
         </div>
 
         <div class="game-field" id="gameField">
@@ -64,10 +66,19 @@
             </div>
         </div>
 
-        <div class="mobile-hint">Проведите пальцем для хода</div>
+        <div class="game-stats">
+            <span>Ходов: <span class="moves-count">0</span></span>
+            <span>Время: <span class="time-count">00:00</span></span>
+        </div>
+
+        <div class="game-footer">
+            <button class="btn theme-toggle" title="Переключить тему">🌙</button>
+            <button class="btn sound-toggle" title="Звук">🔊</button>
+        </div>
     </div>
 
-    <div class="save-indicator" id="saveIndicator">Сохранено</div>
+    <div class="save-indicator" id="saveIndicator">💾 Сохранено</div>
+    <div class="mobile-hint">Проведи пальцем для хода</div>
 
     <script type="module" src="src/main.js"></script>
 </body>

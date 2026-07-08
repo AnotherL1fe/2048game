@@ -8,23 +8,33 @@ export default class Game {
         this.gameOver = false
         this.won = false
         this.continueAfterWin = false
+        this.startTime = Date.now()
 
         this.maxScore = loadMaxScore()
         this.score = 0
-        this.tiles = [
+        this.tiles = this.createEmptyGrid()
+
+        this.previousTiles = null
+        this.moved = false
+        this.lastMoveInfo = null
+        this.history = []
+        
+        this.loadGame()
+    }
+
+    createEmptyGrid() {
+        return [
             [null, null, null, null],
             [null, null, null, null],
             [null, null, null, null],
             [null, null, null, null]
         ]
-
-        this.previousTiles = null
-        this.moved = false
-        
-        this.loadGame()
     }
 
-    // === СОХРАНЕНИЕ ===
+    getTiles() {
+        return this.tiles
+    }
+
     saveGame() {
         const data = {
             maxScore: this.maxScore || 0,
@@ -40,7 +50,9 @@ export default class Game {
             moves: this.moves || 0,
             gameOver: this.gameOver || false,
             won: this.won || false,
-            continueAfterWin: this.continueAfterWin || false
+            continueAfterWin: this.continueAfterWin || false,
+            startTime: this.startTime || Date.now(),
+            history: this.history || []
         }
         return saveGameState(data)
     }
@@ -55,6 +67,8 @@ export default class Game {
             this.gameOver = savedData.gameOver || false
             this.won = savedData.won || false
             this.continueAfterWin = savedData.continueAfterWin || false
+            this.startTime = savedData.startTime || Date.now()
+            this.history = savedData.history || []
             
             this.tiles = savedData.tiles.map(row => 
                 row.map(tileData => 
@@ -75,12 +89,9 @@ export default class Game {
         this.gameOver = false
         this.won = false
         this.continueAfterWin = false
-        this.tiles = [
-            [null, null, null, null],
-            [null, null, null, null],
-            [null, null, null, null],
-            [null, null, null, null]
-        ]
+        this.startTime = Date.now()
+        this.history = []
+        this.tiles = this.createEmptyGrid()
         this.spawnTile()
         this.spawnTile()
         return false
@@ -98,77 +109,64 @@ export default class Game {
         }
     }
 
-    getTiles() {
-        return this.tiles
-    }
-
-    saveState() {
-        this.previousTiles = JSON.parse(JSON.stringify(this.tiles))
-    }
-
-    getTileChanges() {
-        if (!this.previousTiles) return { moved: [], merged: [], new: [] }
-
-        const changes = { moved: [], merged: [], new: [] }
-        const previousMap = new Map()
-        const currentMap = new Map()
-
-        for (let y = 0; y < this.previousTiles.length; y++) {
-            for (let x = 0; x < this.previousTiles[y].length; x++) {
-                const tile = this.previousTiles[y][x]
-                if (tile) {
-                    previousMap.set(tile.id, { x, y, value: tile.value })
-                }
-            }
+    captureStateForUndo() {
+        const state = {
+            tiles: this.tiles.map(row => 
+                row.map(tile => tile ? { 
+                    value: tile.value, 
+                    id: tile.id, 
+                    x: tile.x, 
+                    y: tile.y 
+                } : null)
+            ),
+            score: this.score,
+            moves: this.moves
+        }
+        this.history.push(state)
+        if (this.history.length > 10) {
+            this.history.shift()
         }
 
+        this.previousTiles = []
         for (let y = 0; y < this.tiles.length; y++) {
+            this.previousTiles[y] = []
             for (let x = 0; x < this.tiles[y].length; x++) {
-                const tile = this.tiles[y][x]
-                if (tile) {
-                    currentMap.set(tile.id, { x, y, value: tile.value })
+                if (this.tiles[y][x]) {
+                    this.previousTiles[y][x] = {
+                        id: this.tiles[y][x].id,
+                        value: this.tiles[y][x].value,
+                        x: this.tiles[y][x].x,
+                        y: this.tiles[y][x].y
+                    }
+                } else {
+                    this.previousTiles[y][x] = null
                 }
             }
         }
+    }
 
-        for (let [id, currentPos] of currentMap) {
-            const previousPos = previousMap.get(id)
-            if (previousPos) {
-                if (previousPos.x !== currentPos.x || previousPos.y !== currentPos.y) {
-                    changes.moved.push({
-                        id,
-                        fromX: previousPos.x,
-                        fromY: previousPos.y,
-                        toX: currentPos.x,
-                        toY: currentPos.y
-                    })
-                }
-            } else {
-                changes.new.push({
-                    id,
-                    x: currentPos.x,
-                    y: currentPos.y,
-                    value: currentPos.value
-                })
-            }
-        }
+    undo() {
+        if (this.history.length === 0 || this.gameOver) return false
+        
+        const previousState = this.history.pop()
+        this.score = previousState.score
+        this.moves = previousState.moves
+        this.tiles = previousState.tiles.map(row => 
+            row.map(tileData => 
+                tileData ? new Tile(tileData.value, tileData.x, tileData.y, tileData.id) : null
+            )
+        )
+        this.resetTileFlags()
+        this.saveGame()
+        return true
+    }
 
-        for (let [id, previousPos] of previousMap) {
-            if (!currentMap.has(id)) {
-                const currentTile = this.tiles[previousPos.y]?.[previousPos.x]
-                if (currentTile && currentTile.value === previousPos.value * 2) {
-                    changes.merged.push({
-                        id: currentTile.id,
-                        fromIds: [id],
-                        toX: previousPos.x,
-                        toY: previousPos.y,
-                        newValue: currentTile.value
-                    })
-                }
-            }
-        }
+    canUndo() {
+        return this.history.length > 0 && !this.gameOver
+    }
 
-        return changes
+    getElapsedTime() {
+        return Date.now() - (this.startTime || Date.now())
     }
 
     newGame() {
@@ -180,12 +178,7 @@ export default class Game {
         this.gameOver = false
         this.won = false
         this.continueAfterWin = false
-        this.tiles = [
-            [null, null, null, null],
-            [null, null, null, null],
-            [null, null, null, null],
-            [null, null, null, null]
-        ]
+        this.tiles = this.createEmptyGrid()
         this.previousTiles = null
         this.spawnTile()
         this.spawnTile()
@@ -223,15 +216,18 @@ export default class Game {
             y = parseInt(newY)
         }
 
-        this.tiles[y][x] = new Tile(v, +x, +y)
+        const tile = new Tile(v, +x, +y)
+        tile.isNew = true
+        this.tiles[y][x] = tile
         return true
     }
 
     move(direction) {
-        if (this.gameOver) return false
+        if (this.gameOver) return { moved: false, moveInfo: null }
 
-        this.saveState()
+        this.captureStateForUndo()
         this.moved = false
+        this.lastMoveInfo = { moved: [], merged: [], new: [] }
         let moved = false
 
         switch (direction) {
@@ -243,7 +239,22 @@ export default class Game {
 
         if (moved) {
             this.moves++
+            const emptyBefore = this.findEmptyCoords()
             this.spawnTile()
+            const emptyAfter = this.findEmptyCoords()
+            const newTilePos = emptyBefore.find(pos => !emptyAfter.includes(pos))
+            if (newTilePos) {
+                const [x, y] = newTilePos.split('-').map(Number)
+                const tile = this.tiles[y][x]
+                if (tile) {
+                    this.lastMoveInfo.new.push({
+                        id: tile.id,
+                        x: tile.x,
+                        y: tile.y,
+                        value: tile.value
+                    })
+                }
+            }
             this.saveGame()
 
             if (!this.won && !this.continueAfterWin && this.score >= 2048) {
@@ -260,7 +271,7 @@ export default class Game {
                 }))
             }
         }
-        return moved
+        return { moved, moveInfo: this.lastMoveInfo }
     }
 
     moveLeft() {
@@ -268,6 +279,7 @@ export default class Game {
         for (let y = 0; y < this.tiles.length; y++) {
             for (let x = 1; x < this.tiles[y].length; x++) {
                 if (!this.tiles[y][x]) continue
+                let originalX = x
                 let newX = x
                 while (newX > 0 && !this.tiles[y][newX - 1]) {
                     this.tiles[y][newX - 1] = this.tiles[y][newX]
@@ -275,12 +287,27 @@ export default class Game {
                     newX--
                     moved = true
                 }
+                if (newX !== originalX) {
+                    const tile = this.tiles[y][newX]
+                    tile.x = newX
+                    tile.y = y
+                    this.lastMoveInfo.moved.push({
+                        id: tile.id,
+                        fromX: originalX,
+                        fromY: y,
+                        toX: newX,
+                        toY: y
+                    })
+                }
             }
             for (let x = 0; x < this.tiles[y].length - 1; x++) {
                 if (this.tiles[y][x] && this.tiles[y][x + 1] &&
                     this.tiles[y][x].value === this.tiles[y][x + 1].value) {
-                    this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y)
-                    this.score += this.tiles[y][x].value
+                    const mergedTile = this.tiles[y][x + 1]
+                    const fromId = mergedTile.id
+                    const targetTile = this.tiles[y][x]
+                    targetTile.value *= 2
+                    this.score += targetTile.value
                     if (this.score > this.maxScore) {
                         this.maxScore = this.score
                         saveMaxScore(this.maxScore)
@@ -288,6 +315,14 @@ export default class Game {
                             detail: { score: this.score }
                         }))
                     }
+                    this.lastMoveInfo.merged.push({
+                        id: targetTile.id,
+                        fromIds: [fromId],
+                        toX: x,
+                        toY: y,
+                        newValue: targetTile.value
+                    })
+                    targetTile.isMerged = true
                     for (let i = x + 1; i < this.tiles[y].length - 1; i++) {
                         this.tiles[y][i] = this.tiles[y][i + 1]
                     }
@@ -304,6 +339,7 @@ export default class Game {
         for (let y = 0; y < this.tiles.length; y++) {
             for (let x = this.tiles[y].length - 2; x >= 0; x--) {
                 if (!this.tiles[y][x]) continue
+                let originalX = x
                 let newX = x
                 while (newX < this.tiles[y].length - 1 && !this.tiles[y][newX + 1]) {
                     this.tiles[y][newX + 1] = this.tiles[y][newX]
@@ -311,12 +347,27 @@ export default class Game {
                     newX++
                     moved = true
                 }
+                if (newX !== originalX) {
+                    const tile = this.tiles[y][newX]
+                    tile.x = newX
+                    tile.y = y
+                    this.lastMoveInfo.moved.push({
+                        id: tile.id,
+                        fromX: originalX,
+                        fromY: y,
+                        toX: newX,
+                        toY: y
+                    })
+                }
             }
             for (let x = this.tiles[y].length - 1; x > 0; x--) {
                 if (this.tiles[y][x] && this.tiles[y][x - 1] &&
                     this.tiles[y][x].value === this.tiles[y][x - 1].value) {
-                    this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y)
-                    this.score += this.tiles[y][x].value
+                    const mergedTile = this.tiles[y][x - 1]
+                    const fromId = mergedTile.id
+                    const targetTile = this.tiles[y][x]
+                    targetTile.value *= 2
+                    this.score += targetTile.value
                     if (this.score > this.maxScore) {
                         this.maxScore = this.score
                         saveMaxScore(this.maxScore)
@@ -324,6 +375,14 @@ export default class Game {
                             detail: { score: this.score }
                         }))
                     }
+                    this.lastMoveInfo.merged.push({
+                        id: targetTile.id,
+                        fromIds: [fromId],
+                        toX: x,
+                        toY: y,
+                        newValue: targetTile.value
+                    })
+                    targetTile.isMerged = true
                     for (let i = x - 1; i > 0; i--) {
                         this.tiles[y][i] = this.tiles[y][i - 1]
                     }
@@ -340,6 +399,7 @@ export default class Game {
         for (let x = 0; x < this.tiles[0].length; x++) {
             for (let y = 1; y < this.tiles.length; y++) {
                 if (!this.tiles[y][x]) continue
+                let originalY = y
                 let newY = y
                 while (newY > 0 && !this.tiles[newY - 1][x]) {
                     this.tiles[newY - 1][x] = this.tiles[newY][x]
@@ -347,12 +407,27 @@ export default class Game {
                     newY--
                     moved = true
                 }
+                if (newY !== originalY) {
+                    const tile = this.tiles[newY][x]
+                    tile.x = x
+                    tile.y = newY
+                    this.lastMoveInfo.moved.push({
+                        id: tile.id,
+                        fromX: x,
+                        fromY: originalY,
+                        toX: x,
+                        toY: newY
+                    })
+                }
             }
             for (let y = 0; y < this.tiles.length - 1; y++) {
                 if (this.tiles[y][x] && this.tiles[y + 1][x] &&
                     this.tiles[y][x].value === this.tiles[y + 1][x].value) {
-                    this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y)
-                    this.score += this.tiles[y][x].value
+                    const mergedTile = this.tiles[y + 1][x]
+                    const fromId = mergedTile.id
+                    const targetTile = this.tiles[y][x]
+                    targetTile.value *= 2
+                    this.score += targetTile.value
                     if (this.score > this.maxScore) {
                         this.maxScore = this.score
                         saveMaxScore(this.maxScore)
@@ -360,6 +435,14 @@ export default class Game {
                             detail: { score: this.score }
                         }))
                     }
+                    this.lastMoveInfo.merged.push({
+                        id: targetTile.id,
+                        fromIds: [fromId],
+                        toX: x,
+                        toY: y,
+                        newValue: targetTile.value
+                    })
+                    targetTile.isMerged = true
                     for (let i = y + 1; i < this.tiles.length - 1; i++) {
                         this.tiles[i][x] = this.tiles[i + 1][x]
                     }
@@ -376,6 +459,7 @@ export default class Game {
         for (let x = 0; x < this.tiles[0].length; x++) {
             for (let y = this.tiles.length - 2; y >= 0; y--) {
                 if (!this.tiles[y][x]) continue
+                let originalY = y
                 let newY = y
                 while (newY < this.tiles.length - 1 && !this.tiles[newY + 1][x]) {
                     this.tiles[newY + 1][x] = this.tiles[newY][x]
@@ -383,12 +467,27 @@ export default class Game {
                     newY++
                     moved = true
                 }
+                if (newY !== originalY) {
+                    const tile = this.tiles[newY][x]
+                    tile.x = x
+                    tile.y = newY
+                    this.lastMoveInfo.moved.push({
+                        id: tile.id,
+                        fromX: x,
+                        fromY: originalY,
+                        toX: x,
+                        toY: newY
+                    })
+                }
             }
             for (let y = this.tiles.length - 1; y > 0; y--) {
                 if (this.tiles[y][x] && this.tiles[y - 1][x] &&
                     this.tiles[y][x].value === this.tiles[y - 1][x].value) {
-                    this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y)
-                    this.score += this.tiles[y][x].value
+                    const mergedTile = this.tiles[y - 1][x]
+                    const fromId = mergedTile.id
+                    const targetTile = this.tiles[y][x]
+                    targetTile.value *= 2
+                    this.score += targetTile.value
                     if (this.score > this.maxScore) {
                         this.maxScore = this.score
                         saveMaxScore(this.maxScore)
@@ -396,6 +495,14 @@ export default class Game {
                             detail: { score: this.score }
                         }))
                     }
+                    this.lastMoveInfo.merged.push({
+                        id: targetTile.id,
+                        fromIds: [fromId],
+                        toX: x,
+                        toY: y,
+                        newValue: targetTile.value
+                    })
+                    targetTile.isMerged = true
                     for (let i = y - 1; i > 0; i--) {
                         this.tiles[i][x] = this.tiles[i - 1][x]
                     }
