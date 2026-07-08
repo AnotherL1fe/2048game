@@ -16,7 +16,6 @@
     --shadow-dark: rgba(0, 0, 0, 0.5);
     --shadow-light: rgba(255, 255, 255, 0.03);
     
-    /* Sizes - синхронизировано с Game.js */
     --gap: 10px;
     --field-padding: 10px;
     --border-radius: 16px;

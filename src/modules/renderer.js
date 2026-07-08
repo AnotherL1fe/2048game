@@ -44,7 +44,6 @@ export function renderTiles(game, tileList) {
         }
     }
 
-    // Удаляем тайлы, которых больше нет
     for (const [id, data] of tileList) {
         if (!currentIds.has(id)) {
             const el = data.el
@@ -71,21 +70,17 @@ export function renderTiles(game, tileList) {
         } else {
             const el = existing.el
             
-            // Обновляем позицию
             const newPosClass = `tile-pos-${x}-${y}`
             el.className = el.className.split(' ').filter(c => !c.startsWith('tile-pos-')).join(' ')
             el.className += ` ${newPosClass}`
             
-            // Добавляем класс visible для плавного появления
             if (!el.classList.contains('visible')) {
                 el.classList.add('visible')
             }
             
-            // Обновляем значение
             if (el.textContent != tile.value) {
                 el.textContent = tile.value
                 
-                // Обновляем класс цвета
                 const colorClasses = el.className.split(' ').filter(c => !c.startsWith('tile-'))
                 el.className = colorClasses.join(' ')
                 el.classList.add(`tile-${tile.value}`)
@@ -108,7 +103,6 @@ export function renderTiles(game, tileList) {
         }
     }
 
-    // Обновляем счет
     const oldScore = parseInt(currentScore?.textContent || '0')
     if (oldScore !== game.score) {
         currentScore.textContent = game.score

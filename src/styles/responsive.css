@@ -41,7 +41,6 @@
         letter-spacing: 0.5px;
     }
     
-    /* ИСПРАВЛЕНО: используем CSS переменные */
     .game-field {
         border-radius: 12px;
         --field-padding: 6px;
@@ -151,7 +150,6 @@
         letter-spacing: 0.3px;
     }
     
-    /* ИСПРАВЛЕНО: используем CSS переменные */
     .game-field {
         border-radius: 8px;
         --field-padding: 4px;
