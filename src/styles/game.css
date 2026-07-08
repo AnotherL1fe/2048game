@@ -15,8 +15,6 @@
     padding: 10px;
     overflow: hidden;
     touch-action: none;
-    min-width: 200px;
-    min-height: 200px;
 }
 
 .game-back {
@@ -31,10 +29,8 @@
 .cell {
     background: rgba(255, 255, 255, 0.03);
     border-radius: var(--border-radius-sm);
-    transition: all 0.3s ease;
 }
 
-/* ===== GAME TILES - ИСПОЛЬЗУЕМ GRID ===== */
 .game-tiles {
     position: absolute;
     top: 10px;
@@ -46,10 +42,9 @@
     grid-template-rows: repeat(4, 1fr);
     gap: 10px;
     pointer-events: none;
-    isolation: isolate;
 }
 
-/* ===== TILES - ТЕПЕРЬ В GRID ===== */
+/* ===== TILES ===== */
 .tile {
     display: flex;
     align-items: center;
@@ -57,28 +52,20 @@
     font-size: 28px;
     font-weight: 800;
     border-radius: var(--border-radius-sm);
-    transition: all var(--transition-speed) var(--transition-bounce);
     pointer-events: none;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    will-change: transform;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
     box-sizing: border-box;
-    /* 
-        ВНИМАНИЕ! 
-        Теперь позиция тайла НЕ через left/top, 
-        а через grid-column и grid-row!
-    */
+    transition: none;
     grid-column: 1;
     grid-row: 1;
     opacity: 0;
-    transform: scale(0.5);
+    transform: scale(0.8);
 }
 
 .tile.visible {
     opacity: 1;
     transform: scale(1);
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 /* Позиции тайлов через grid */
@@ -100,124 +87,61 @@
 .tile-pos-3-3 { grid-column: 4; grid-row: 4; }
 
 /* ===== TILE COLORS ===== */
-.tile-2 { background: linear-gradient(135deg, #eee4da, #e8d5c4); color: var(--text-dark); }
-.tile-4 { background: linear-gradient(135deg, #ede0c8, #e5d4b8); color: var(--text-dark); }
-.tile-8 { background: linear-gradient(135deg, #f2b179, #f0a060); color: #f9f6f2; }
-.tile-16 { background: linear-gradient(135deg, #f59563, #f08050); color: #f9f6f2; }
-.tile-32 { background: linear-gradient(135deg, #f67c5f, #f06040); color: #f9f6f2; }
-.tile-64 { background: linear-gradient(135deg, #f65e3b, #e04020); color: #f9f6f2; }
-.tile-128 { 
-    background: linear-gradient(135deg, #edcf72, #e8c050);
-    color: #f9f6f2;
-    font-size: 24px;
-    box-shadow: 0 0 30px rgba(237, 207, 114, 0.3);
-}
-.tile-256 { 
-    background: linear-gradient(135deg, #edcc61, #e8b840);
-    color: #f9f6f2;
-    font-size: 24px;
-    box-shadow: 0 0 30px rgba(237, 204, 97, 0.3);
-}
-.tile-512 { 
-    background: linear-gradient(135deg, #edc850, #e8b030);
-    color: #f9f6f2;
-    font-size: 24px;
-    box-shadow: 0 0 30px rgba(237, 200, 80, 0.3);
-}
-.tile-1024 { 
-    background: linear-gradient(135deg, #edc53f, #e8a020);
-    color: #f9f6f2;
-    font-size: 20px;
-    box-shadow: 0 0 40px rgba(237, 197, 63, 0.4);
-}
-.tile-2048 { 
-    background: linear-gradient(135deg, #edc22e, #e89000);
-    color: #f9f6f2;
-    font-size: 20px;
-    box-shadow: 0 0 50px rgba(237, 194, 46, 0.5);
-    animation: tileGlow 2s ease-in-out infinite;
-}
-.tile-super {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a24, #f9ca24, #6ab04c, #4a69bd, #6c5ce7);
-    background-size: 300% 300%;
-    color: #fff;
-    font-size: 16px;
-    animation: rainbowGlow 3s ease-in-out infinite, tileGlow 2s ease-in-out infinite;
+.tile-2 { background: #eee4da; color: #776e65; }
+.tile-4 { background: #ede0c8; color: #776e65; }
+.tile-8 { background: #f2b179; color: #f9f6f2; }
+.tile-16 { background: #f59563; color: #f9f6f2; }
+.tile-32 { background: #f67c5f; color: #f9f6f2; }
+.tile-64 { background: #f65e3b; color: #f9f6f2; }
+.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 24px; }
+.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 24px; }
+.tile-512 { background: #edc850; color: #f9f6f2; font-size: 24px; }
+.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 20px; }
+.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 20px; animation: tileGlow 2s ease-in-out infinite; }
+.tile-super { background: linear-gradient(135deg, #ff6b6b, #feca57, #6ab04c, #4a69bd); color: #fff; font-size: 16px; }
+
+@keyframes tileGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(237, 194, 46, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(237, 194, 46, 0.6); }
 }
 
 /* ===== АНИМАЦИИ ===== */
 @keyframes tileAppear {
-    0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes tileMerge {
-    0% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.3); filter: brightness(1.5); box-shadow: 0 0 50px rgba(255, 215, 0, 0.6); }
-    100% { transform: scale(1); filter: brightness(1); box-shadow: none; }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); box-shadow: 0 0 50px rgba(255, 215, 0, 0.5); }
+    100% { transform: scale(1); }
 }
 
 .tile-new {
-    animation: tileAppear 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+    animation: tileAppear 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
 }
 
 .tile-merged {
-    animation: tileMerge 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+    animation: tileMerge 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 420px) {
-    .game-field {
-        padding: 6px;
-    }
-    .game-back {
-        gap: 6px;
-    }
-    .game-tiles {
-        top: 6px;
-        left: 6px;
-        right: 6px;
-        bottom: 6px;
-        gap: 6px;
-    }
-    .tile {
-        font-size: 22px;
-    }
-    .tile-128, .tile-256, .tile-512 {
-        font-size: 18px;
-    }
-    .tile-1024, .tile-2048 {
-        font-size: 15px;
-    }
-    .tile-super {
-        font-size: 12px;
-    }
+    .game-field { padding: 6px; }
+    .game-back { gap: 6px; }
+    .game-tiles { top: 6px; left: 6px; right: 6px; bottom: 6px; gap: 6px; }
+    .tile { font-size: 22px; }
+    .tile-128, .tile-256, .tile-512 { font-size: 18px; }
+    .tile-1024, .tile-2048 { font-size: 15px; }
+    .tile-super { font-size: 12px; }
 }
 
 @media (max-width: 350px) {
-    .game-field {
-        padding: 4px;
-    }
-    .game-back {
-        gap: 4px;
-    }
-    .game-tiles {
-        top: 4px;
-        left: 4px;
-        right: 4px;
-        bottom: 4px;
-        gap: 4px;
-    }
-    .tile {
-        font-size: 16px;
-    }
-    .tile-128, .tile-256, .tile-512 {
-        font-size: 13px;
-    }
-    .tile-1024, .tile-2048 {
-        font-size: 11px;
-    }
-    .tile-super {
-        font-size: 10px;
-    }
+    .game-field { padding: 4px; }
+    .game-back { gap: 4px; }
+    .game-tiles { top: 4px; left: 4px; right: 4px; bottom: 4px; gap: 4px; }
+    .tile { font-size: 16px; }
+    .tile-128, .tile-256, .tile-512 { font-size: 13px; }
+    .tile-1024, .tile-2048 { font-size: 11px; }
+    .tile-super { font-size: 10px; }
 }

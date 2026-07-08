@@ -1,7 +1,6 @@
 import Game from './classes/Game.js'
 import { renderTiles, forceRecreateTiles } from './modules/renderer.js'
 import { setupKeyboardControls, setupTouchControls } from './modules/controller.js'
-import { setupResizeHandler } from './modules/resizeHandler.js'
 import { createConfetti } from './modules/confetti.js'
 
 const game = new Game()
@@ -36,9 +35,6 @@ async function handleMove(direction) {
 // === УПРАВЛЕНИЕ ===
 setupKeyboardControls(handleMove)
 setupTouchControls(handleMove)
-
-// === ОБРАБОТЧИК РЕСАЙЗА ===
-setupResizeHandler(game, tileList)
 
 // === КНОПКИ ===
 document.querySelector('.btn-new-game').addEventListener('click', () => {

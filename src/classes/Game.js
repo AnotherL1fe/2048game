@@ -272,7 +272,6 @@ export default class Game {
                 while (newX > 0 && !this.tiles[y][newX - 1]) {
                     this.tiles[y][newX - 1] = this.tiles[y][newX]
                     this.tiles[y][newX] = null
-                    this.tiles[y][newX - 1].x = newX - 1
                     newX--
                     moved = true
                 }
@@ -291,9 +290,6 @@ export default class Game {
                     }
                     for (let i = x + 1; i < this.tiles[y].length - 1; i++) {
                         this.tiles[y][i] = this.tiles[y][i + 1]
-                        if (this.tiles[y][i]) {
-                            this.tiles[y][i].x = i
-                        }
                     }
                     this.tiles[y][this.tiles[y].length - 1] = null
                     moved = true
@@ -312,7 +308,6 @@ export default class Game {
                 while (newX < this.tiles[y].length - 1 && !this.tiles[y][newX + 1]) {
                     this.tiles[y][newX + 1] = this.tiles[y][newX]
                     this.tiles[y][newX] = null
-                    this.tiles[y][newX + 1].x = newX + 1
                     newX++
                     moved = true
                 }
@@ -331,9 +326,6 @@ export default class Game {
                     }
                     for (let i = x - 1; i > 0; i--) {
                         this.tiles[y][i] = this.tiles[y][i - 1]
-                        if (this.tiles[y][i]) {
-                            this.tiles[y][i].x = i
-                        }
                     }
                     this.tiles[y][0] = null
                     moved = true
@@ -352,7 +344,6 @@ export default class Game {
                 while (newY > 0 && !this.tiles[newY - 1][x]) {
                     this.tiles[newY - 1][x] = this.tiles[newY][x]
                     this.tiles[newY][x] = null
-                    this.tiles[newY - 1][x].y = newY - 1
                     newY--
                     moved = true
                 }
@@ -371,9 +362,6 @@ export default class Game {
                     }
                     for (let i = y + 1; i < this.tiles.length - 1; i++) {
                         this.tiles[i][x] = this.tiles[i + 1][x]
-                        if (this.tiles[i][x]) {
-                            this.tiles[i][x].y = i
-                        }
                     }
                     this.tiles[this.tiles.length - 1][x] = null
                     moved = true
@@ -392,7 +380,6 @@ export default class Game {
                 while (newY < this.tiles.length - 1 && !this.tiles[newY + 1][x]) {
                     this.tiles[newY + 1][x] = this.tiles[newY][x]
                     this.tiles[newY][x] = null
-                    this.tiles[newY + 1][x].y = newY + 1
                     newY++
                     moved = true
                 }
@@ -411,9 +398,6 @@ export default class Game {
                     }
                     for (let i = y - 1; i > 0; i--) {
                         this.tiles[i][x] = this.tiles[i - 1][x]
-                        if (this.tiles[i][x]) {
-                            this.tiles[i][x].y = i
-                        }
                     }
                     this.tiles[0][x] = null
                     moved = true

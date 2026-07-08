@@ -2,8 +2,6 @@ let zIndexCounter = 100
 
 export function createTileElement(tile) {
     const el = document.createElement('div')
-    
-    // Класс для позиции
     const posClass = `tile-pos-${tile.x}-${tile.y}`
     
     el.className = `tile tile-${tile.value} ${posClass} visible`
@@ -50,7 +48,7 @@ export function renderTiles(game, tileList) {
     for (const [id, data] of tileList) {
         if (!currentIds.has(id)) {
             const el = data.el
-            el.style.transition = 'transform 0.15s ease-out, opacity 0.15s ease-out'
+            el.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out'
             el.style.transform = 'scale(0.8)'
             el.style.opacity = '0'
             setTimeout(() => {
@@ -73,11 +71,15 @@ export function renderTiles(game, tileList) {
         } else {
             const el = existing.el
             
-            // Обновляем позицию через классы
+            // Обновляем позицию
             const newPosClass = `tile-pos-${x}-${y}`
-            // Удаляем все старые классы позиции
             el.className = el.className.split(' ').filter(c => !c.startsWith('tile-pos-')).join(' ')
             el.className += ` ${newPosClass}`
+            
+            // Добавляем класс visible для плавного появления
+            if (!el.classList.contains('visible')) {
+                el.classList.add('visible')
+            }
             
             // Обновляем значение
             if (el.textContent != tile.value) {
@@ -91,12 +93,7 @@ export function renderTiles(game, tileList) {
                 if (tile.isMerged) {
                     el.classList.add('tile-merged')
                     el.style.zIndex = zIndexCounter++
-                    el.style.transform = 'scale(1.2)'
-                    setTimeout(() => {
-                        el.style.transition = 'transform 0.15s'
-                        el.style.transform = 'scale(1)'
-                        setTimeout(() => el.classList.remove('tile-merged'), 300)
-                    }, 50)
+                    setTimeout(() => el.classList.remove('tile-merged'), 350)
                 }
 
                 if (tile.isNew) {
@@ -141,7 +138,5 @@ export function forceRecreateTiles(game, tileList) {
 }
 
 export function updateTileSizes(game, tileList) {
-    // С grid не нужно обновлять размеры — всё автоматически!
-    // Просто пересоздаём тайлы, если нужно
     forceRecreateTiles(game, tileList)
 }
