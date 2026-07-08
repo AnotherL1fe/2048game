@@ -3,11 +3,15 @@ import Tile from "./Tile.js"
 export default class Game {
     static generateStyleTable(tileCount, tileSize) {
         const table = {}
-        for (let y = 0; y <= tileCount; y++) {
-            for (let x = 0; x <= tileCount; x++) {
-                let left = `left: ${(x) * tileSize + (x) * 10}px;`
-                let top = `top: ${(y) * tileSize + (y) * 10}px;`
-                table[`${x}-${y}`] = `${left} ${top}`
+        const gap = 10
+        const sizeCalc = `calc((100% - ${gap * (tileCount + 1)}px) / ${tileCount})`
+        const gapCalc = `${gap}px`
+        
+        for (let y = 0; y < tileCount; y++) {
+            for (let x = 0; x < tileCount; x++) {
+                const left = `calc(${x} * (${sizeCalc} + ${gapCalc}) + ${gapCalc})`
+                const top = `calc(${y} * (${sizeCalc} + ${gapCalc}) + ${gapCalc})`
+                table[`${x}-${y}`] = `left: ${left}; top: ${top}; width: ${sizeCalc}; height: ${sizeCalc};`
             }
         }
         return table
@@ -16,8 +20,9 @@ export default class Game {
     constructor() {
         this.tileSize = 100
         this.tileCount = 4
+        this.gap = 10
 
-        this.maxScore = window.localStorage.getItem('maxScore') || 0
+        this.maxScore = parseInt(localStorage.getItem('maxScore')) || 0
         this.score = 0
         this.tiles = [
             [null, null, null, null],
@@ -29,6 +34,77 @@ export default class Game {
         this.previousTiles = null;
         this.styleTable = Game.generateStyleTable(this.tileCount, this.tileSize)
         this.moved = false;
+        
+        this.loadGame()
+    }
+
+    // === СОХРАНЕНИЕ ===
+    saveGame() {
+        try {
+            const data = {
+                maxScore: this.maxScore || 0,
+                score: this.score || 0,
+                tiles: this.tiles.map(row => 
+                    row.map(tile => tile ? { 
+                        value: tile.value, 
+                        id: tile.id, 
+                        x: tile.x, 
+                        y: tile.y 
+                    } : null)
+                ),
+                moves: this.moves || 0,
+                gameOver: this.gameOver || false,
+                won: this.won || false,
+                timestamp: Date.now()
+            }
+            localStorage.setItem('game2048_state', JSON.stringify(data))
+            localStorage.setItem('maxScore', String(this.maxScore || 0))
+            window.dispatchEvent(new CustomEvent('gameSaved'))
+        } catch (e) {
+            console.warn('Save error:', e)
+        }
+    }
+
+    loadGame() {
+        try {
+            const saved = localStorage.getItem('game2048_state')
+            if (saved) {
+                const data = JSON.parse(saved)
+                this.maxScore = data.maxScore || 0
+                this.score = data.score || 0
+                this.moves = data.moves || 0
+                this.gameOver = data.gameOver || false
+                this.won = data.won || false
+                
+                this.tiles = data.tiles.map(row => 
+                    row.map(tileData => 
+                        tileData ? new Tile(tileData.value, tileData.x, tileData.y, tileData.id) : null
+                    )
+                )
+                
+                const hasTiles = this.tiles.some(row => row.some(t => t !== null))
+                if (hasTiles) {
+                    return true
+                }
+            }
+        } catch (e) {
+            console.warn('Load error:', e)
+        }
+        
+        this.maxScore = parseInt(localStorage.getItem('maxScore')) || 0
+        this.score = 0
+        this.moves = 0
+        this.gameOver = false
+        this.won = false
+        this.tiles = [
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null]
+        ]
+        this.spawnTile()
+        this.spawnTile()
+        return false
     }
 
     getTiles() {
@@ -110,7 +186,13 @@ export default class Game {
     }
 
     newGame() {
+        if (this.score > 0 || this.moves > 0) {
+            if (!confirm('Начать новую игру?')) return false
+        }
         this.score = 0;
+        this.moves = 0;
+        this.gameOver = false;
+        this.won = false;
         this.tiles = [
             [null, null, null, null],
             [null, null, null, null],
@@ -120,6 +202,8 @@ export default class Game {
         this.previousTiles = null;
         this.spawnTile();
         this.spawnTile();
+        this.saveGame();
+        return true;
     }
 
     findEmptyCoords() {
@@ -133,14 +217,14 @@ export default class Game {
     }
 
     spawnTile(x, y, v = Math.floor(Math.random() * 2 + 1) * 2) {
-        if (!x || !y) {
+        if (x === undefined || y === undefined) {
             const emptyCoords = this.findEmptyCoords()
             if (emptyCoords.length === 0) return false;
 
             let randomCoords = emptyCoords[Math.floor(Math.random() * emptyCoords.length)]
             const [newX, newY] = randomCoords.split("-");
-            x = newX;
-            y = newY;
+            x = parseInt(newX);
+            y = parseInt(newY);
         }
 
         this.tiles[y][x] = new Tile(v, +x, +y)
@@ -148,6 +232,8 @@ export default class Game {
     }
 
     move(direction) {
+        if (this.gameOver) return false;
+        
         this.saveState();
         this.moved = false;
         let moved = false;
@@ -168,7 +254,22 @@ export default class Game {
         }
 
         if (moved) {
+            this.moves++;
             this.spawnTile();
+            this.saveGame();
+            
+            if (!this.won && this.score >= 2048) {
+                this.won = true;
+                window.dispatchEvent(new CustomEvent('gameWon'));
+            }
+            
+            if (!this.canMove()) {
+                this.gameOver = true;
+                this.saveGame();
+                window.dispatchEvent(new CustomEvent('gameOver', { 
+                    detail: { score: this.score }
+                }));
+            }
         }
         return moved;
     }
@@ -195,6 +296,13 @@ export default class Game {
 
                     this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y);
                     this.score += this.tiles[y][x].value;
+
+                    if (this.score > this.maxScore) {
+                        this.maxScore = this.score;
+                        window.dispatchEvent(new CustomEvent('recordBroken', { 
+                            detail: { score: this.score }
+                        }));
+                    }
 
                     for (let i = x + 1; i < this.tiles[y].length - 1; i++) {
                         this.tiles[y][i] = this.tiles[y][i + 1];
@@ -231,6 +339,13 @@ export default class Game {
                     this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y);
                     this.score += this.tiles[y][x].value;
 
+                    if (this.score > this.maxScore) {
+                        this.maxScore = this.score;
+                        window.dispatchEvent(new CustomEvent('recordBroken', { 
+                            detail: { score: this.score }
+                        }));
+                    }
+
                     for (let i = x - 1; i > 0; i--) {
                         this.tiles[y][i] = this.tiles[y][i - 1];
                     }
@@ -266,6 +381,13 @@ export default class Game {
                     this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y);
                     this.score += this.tiles[y][x].value;
 
+                    if (this.score > this.maxScore) {
+                        this.maxScore = this.score;
+                        window.dispatchEvent(new CustomEvent('recordBroken', { 
+                            detail: { score: this.score }
+                        }));
+                    }
+
                     for (let i = y + 1; i < this.tiles.length - 1; i++) {
                         this.tiles[i][x] = this.tiles[i + 1][x];
                     }
@@ -300,6 +422,13 @@ export default class Game {
 
                     this.tiles[y][x] = new Tile(this.tiles[y][x].value * 2, x, y);
                     this.score += this.tiles[y][x].value;
+
+                    if (this.score > this.maxScore) {
+                        this.maxScore = this.score;
+                        window.dispatchEvent(new CustomEvent('recordBroken', { 
+                            detail: { score: this.score }
+                        }));
+                    }
 
                     for (let i = y - 1; i > 0; i--) {
                         this.tiles[i][x] = this.tiles[i - 1][x];

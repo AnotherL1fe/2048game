@@ -1,196 +1,326 @@
 import Game from './classes/Game.js'
 
 const game = new Game()
-let tileList = new Map();
+let tileList = new Map()
+let isAnimating = false
+let zIndexCounter = 100
 
 const currentScore = document.querySelector('.currentScore')
 const maxScore = document.querySelector('.maxScore')
+const gameTiles = document.getElementById('gameTiles')
+const gameField = document.getElementById('gameField')
+const gameOverlay = document.getElementById('gameOverlay')
+const overlayTitle = document.getElementById('overlayTitle')
+const finalScore = document.getElementById('finalScore')
+const restartBtn = document.getElementById('restartBtn')
 
-
-function createTileElement(tile, x, y, styleTable) {
-    const tileElement = document.createElement("div");
-    tileElement.classList.add("tile", `tile-${tile.value}`);
-    tileElement.innerHTML = tile.value;
-    tileElement.setAttribute("style", styleTable[`${x}-${y}`]);
-    tileElement.dataset.id = tile.id;
-    tileElement.dataset.x = x;
-    tileElement.dataset.y = y;
-
-    return tileElement;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-function animateTileMovement(tileElement, fromX, fromY, toX, toY, styleTable) {
-    return new Promise((resolve) => {
-        tileElement.style.transition = 'none';
-        tileElement.setAttribute("style", styleTable[`${fromX}-${fromY}`]);
-
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                tileElement.style.transition = 'all 0.15s ease-in-out';
-                tileElement.setAttribute("style", styleTable[`${toX}-${toY}`]);
-
-                tileElement.addEventListener('transitionend', resolve, { once: true });
-            });
-        });
-    });
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-function animateTileMerge(tileElement, newValue) {
-    return new Promise((resolve) => {
-        tileElement.style.transform = 'scale(1.1)';
-        tileElement.classList.add(`tile-${newValue}`);
-        tileElement.innerHTML = newValue;
-
-        setTimeout(() => {
-            tileElement.style.transform = 'scale(1)';
-            resolve();
-        }, 150);
-    });
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-function animateNewTile(tileElement) {
-    tileElement.style.transform = 'scale(0)';
-
-    requestAnimationFrame(() => {
-        tileElement.style.transition = 'transform 0.15s ease-out';
-        tileElement.style.transform = 'scale(1)';
-    });
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-async function renderWithAnimation(list, styleTable) {
-    const gameTiles = document.querySelector(".gameTiles");
-    const scoreElement = document.querySelector(".score");
-
+function updateTileSizes() {
+    game.styleTable = Game.generateStyleTable(game.tileCount, game.tileSize)
     
-    if (tileList.size == 0) {
-        gameTiles.innerHTML = ""
-    }
-    if (scoreElement) {
-        scoreElement.textContent = game.score;
-    }
-
-    
-    const changes = game.getTileChanges();
-
-    const moveAnimations = changes.moved.map(change => {
-        const tileElement = tileList.get(change.id)?.dom;
-        if (tileElement) {
-            return animateTileMovement(tileElement, change.fromX, change.fromY, change.toX, change.toY, styleTable);
-        }
-    });
-
-    
-    await Promise.all(moveAnimations);
-
-    
-    const mergeAnimations = changes.merged.map(change => {
-        const tileElement = tileList.get(change.id)?.dom;
-        if (tileElement) {
-            return animateTileMerge(tileElement, change.newValue);
-        }
-    });
-
-    
-    await Promise.all(mergeAnimations);
-
-    
-    const currentIds = new Set();
-    
-    for (let y = 0; y < list.length; y++) {
-        for (let x = 0; x < list.length; x++) {
-            const item = list[y][x];
-            if (item) currentIds.add(item.id);
+    for (const [id, data] of tileList) {
+        const { tile, x, y } = data
+        const el = data.el
+        const newStyle = game.styleTable[`${x}-${y}`]
+        if (el.style.cssText !== newStyle) {
+            el.style.cssText = newStyle
         }
     }
-    for (let [id, tileData] of tileList) {
-        if (!currentIds.has(id)) {
-            tileData.dom.remove();
-            tileList.delete(id);
-        }
+}
+
+function createTileElement(tile) {
+    const el = document.createElement('div')
+    el.className = `tile tile-${tile.value}`
+    el.textContent = tile.value
+    el.style.cssText = game.styleTable[`${tile.x}-${tile.y}`]
+    el.style.zIndex = zIndexCounter++
+    el.dataset.id = tile.id
+    
+    if (tile.isNew) {
+        el.classList.add('tile-new')
+        setTimeout(() => el.classList.remove('tile-new'), 300)
     }
+    
+    if (tile.isMerged) {
+        el.classList.add('tile-merged')
+        el.style.zIndex = zIndexCounter++
+        setTimeout(() => el.classList.remove('tile-merged'), 350)
+    }
+    
+    return el
+}
 
-    changes.new.forEach(newTile => {
-        const tileElement = createTileElement(
-            { id: newTile.id, value: newTile.value },
-            newTile.x,
-            newTile.y,
-            styleTable
-        );
-
-        gameTiles.appendChild(tileElement);
-        tileList.set(newTile.id, { dom: tileElement, x: newTile.x, y: newTile.y });
-        animateNewTile(tileElement);
-    });
-
-    for (let y = 0; y < list.length; y++) {
-        for (let x = 0; x < list.length; x++) {
-            const item = list[y][x];
-            if (!item) continue;
-
-            const tileData = tileList.get(item.id);
-            if (tileData) {
-                tileData.dom.setAttribute("style", styleTable[`${x}-${y}`]);
-                tileData.dom.className = `tile tile-${item.value}`;
-                tileData.dom.innerHTML = item.value;
-                tileData.x = x;
-                tileData.y = y;
-            } else {
-                const tileElement = createTileElement(item, x, y, styleTable);
-                gameTiles.appendChild(tileElement);
-                tileList.set(item.id, { dom: tileElement, x, y });
+function renderTiles() {
+    const tiles = game.getTiles()
+    const currentIds = new Set()
+    const tilesToKeep = new Map()
+    
+    for (let y = 0; y < tiles.length; y++) {
+        for (let x = 0; x < tiles[y].length; x++) {
+            const tile = tiles[y][x]
+            if (tile) {
+                currentIds.add(tile.id)
+                tilesToKeep.set(tile.id, { tile, x, y })
             }
         }
     }
-    currentScore.innerHTML = game.score
-    maxScore.innerHTML = game.maxScore
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-async function handleMove(direction) {
-    const moved = game.move(direction);
-    if (moved) {
-        await renderWithAnimation(game.tiles, game.styleTable);
-
-        if (!game.canMove()) {
+    
+    for (const [id, data] of tileList) {
+        if (!currentIds.has(id)) {
+            const el = data.el
+            el.style.transition = 'transform 0.15s ease-out, opacity 0.15s ease-out'
+            el.style.transform = 'scale(0.8)'
+            el.style.opacity = '0'
             setTimeout(() => {
-                window.localStorage.setItem('maxScore', game.score)
-                alert(`Игра окончена! Ваш счет: ${game.score}`);
-            }, 300);
+                if (el.parentNode) el.remove()
+            }, 150)
+            tileList.delete(id)
         }
     }
+    
+    for (const [id, data] of tilesToKeep) {
+        const { tile, x, y } = data
+        let existing = tileList.get(id)
+        
+        if (!existing) {
+            const el = createTileElement(tile)
+            gameTiles.appendChild(el)
+            
+            if (tile.isNew) {
+                el.style.transform = 'scale(0)'
+                requestAnimationFrame(() => {
+                    el.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                    el.style.transform = 'scale(1)'
+                })
+            }
+            
+            tileList.set(id, { el, x, y, tile })
+        } else {
+            const el = existing.el
+            const newPos = game.styleTable[`${x}-${y}`]
+            
+            if (el.style.cssText !== newPos) {
+                el.style.cssText = newPos
+            }
+            
+            if (el.textContent != tile.value) {
+                el.textContent = tile.value
+                el.className = `tile tile-${tile.value}`
+                
+                if (tile.isMerged) {
+                    el.classList.add('tile-merged')
+                    el.style.zIndex = zIndexCounter++
+                    el.style.transform = 'scale(1.2)'
+                    setTimeout(() => {
+                        el.style.transition = 'transform 0.15s'
+                        el.style.transform = 'scale(1)'
+                        setTimeout(() => el.classList.remove('tile-merged'), 300)
+                    }, 50)
+                }
+                
+                if (tile.isNew) {
+                    el.classList.add('tile-new')
+                    setTimeout(() => el.classList.remove('tile-new'), 300)
+                }
+            }
+            
+            existing.x = x
+            existing.y = y
+            existing.tile = tile
+        }
+    }
+    
+    const oldScore = parseInt(currentScore.textContent)
+    if (oldScore !== game.score) {
+        currentScore.textContent = game.score
+        currentScore.classList.remove('score-pop')
+        void currentScore.offsetWidth
+        currentScore.classList.add('score-pop')
+    }
+    
+    if (game.score === game.maxScore && game.score > 0) {
+        maxScore.textContent = game.maxScore
+        maxScore.classList.remove('record-pop')
+        void maxScore.offsetWidth
+        maxScore.classList.add('record-pop')
+    }
+    maxScore.textContent = game.maxScore
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+async function handleMove(direction) {
+    if (isAnimating || game.gameOver) return
+    
+    isAnimating = true
+    const moved = game.move(direction)
+    
+    if (moved) {
+        renderTiles()
+        gameField.classList.remove('move-flash')
+        void gameField.offsetWidth
+        gameField.classList.add('move-flash')
+    }
+    
+    isAnimating = false
+}
+
+// === ОБРАБОТЧИК ИЗМЕНЕНИЯ РАЗМЕРА ===
+let resizeTimeout = null
+window.addEventListener('resize', () => {
+    if (resizeTimeout) clearTimeout(resizeTimeout)
+    resizeTimeout = setTimeout(() => {
+        updateTileSizes()
+        resizeTimeout = null
+    }, 100)
+})
+
+// === EVENTS ===
+document.addEventListener('keydown', (e) => {
+    const keyMap = {
+        'ArrowLeft': 'left',
+        'ArrowRight': 'right',
+        'ArrowUp': 'up',
+        'ArrowDown': 'down'
+    }
+    if (keyMap[e.key]) {
+        e.preventDefault()
+        handleMove(keyMap[e.key])
+    }
+})
+
+let touchStartX = 0
+let touchStartY = 0
+let isSwiping = false
+
+document.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0]
+    touchStartX = touch.clientX
+    touchStartY = touch.clientY
+    isSwiping = false
+}, { passive: true })
+
+document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0]
+    const dx = touch.clientX - touchStartX
+    const dy = touch.clientY - touchStartY
+    
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+        isSwiping = true
+    }
+    e.preventDefault()
+}, { passive: false })
+
+document.addEventListener('touchend', (e) => {
+    if (!isSwiping || touchStartX === 0) return
+    
+    const touch = e.changedTouches[0]
+    const dx = touch.clientX - touchStartX
+    const dy = touch.clientY - touchStartY
+    
+    if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return
+    
+    let direction
+    if (Math.abs(dx) > Math.abs(dy)) {
+        direction = dx > 0 ? 'right' : 'left'
+    } else {
+        direction = dy > 0 ? 'down' : 'up'
+    }
+    
+    handleMove(direction)
+    touchStartX = 0
+    touchStartY = 0
+    isSwiping = false
+}, { passive: true })
+
+// === BUTTONS ===
+document.querySelector('.btn-new-game').addEventListener('click', () => {
+    if (game.newGame()) {
+        for (const [id, data] of tileList) {
+            data.el.remove()
+        }
+        tileList.clear()
+        zIndexCounter = 100
+        gameOverlay.classList.remove('active')
+        renderTiles()
+    }
+})
+
+restartBtn.addEventListener('click', () => {
+    document.querySelector('.btn-new-game').click()
+})
+
+// === SAVE INDICATOR ===
+const saveIndicator = document.getElementById('saveIndicator')
+let saveTimeout = null
+
+window.addEventListener('gameSaved', () => {
+    saveIndicator.textContent = 'Сохранено'
+    saveIndicator.classList.add('show')
+    
+    if (saveTimeout) clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+        saveIndicator.classList.remove('show')
+        saveTimeout = null
+    }, 1200)
+})
+
+// === GAME OVER ===
+window.addEventListener('gameOver', (e) => {
+    setTimeout(() => {
+        overlayTitle.textContent = 'Игра окончена!'
+        finalScore.textContent = e.detail.score
+        gameOverlay.classList.add('active')
+        createConfetti()
+    }, 300)
+})
+
+// === WIN ===
+window.addEventListener('gameWon', () => {
+    setTimeout(() => {
+        overlayTitle.textContent = 'Победа! Вы собрали 2048!'
+        finalScore.textContent = game.score
+        gameOverlay.classList.add('active')
+        createConfetti()
+    }, 300)
+})
+
+// === CONFETTI ===
+function createConfetti() {
+    const oldContainer = document.querySelector('.confetti-container')
+    if (oldContainer) oldContainer.remove()
+    
+    const container = document.createElement('div')
+    container.className = 'confetti-container'
+    document.body.appendChild(container)
+    
+    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#a29bfe', '#fd79a8', '#ffd700', '#ff4757']
+    const isMobile = window.innerWidth < 500
+    const count = isMobile ? 25 : 50
+    
+    for (let i = 0; i < count; i++) {
+        const el = document.createElement('div')
+        el.className = 'confetti'
+        
+        const size = Math.random() * 8 + 4
+        el.style.cssText = `
+            left: ${Math.random() * 100}%;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation-duration: ${Math.random() * 2 + 1.5}s;
+            animation-delay: ${Math.random() * 0.8}s;
+            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+            transform: rotate(${Math.random() * 360}deg);
+        `
+        container.appendChild(el)
+    }
+    
+    setTimeout(() => {
+        if (container.parentNode) container.remove()
+    }, 4500)
+}
+
+// === START ===
 export default function start() {
-    const newGameBtn = document.querySelector(".newGame");
-
-    newGameBtn.addEventListener("click", () => {
-        game.newGame();
-        console.log(tileList);
-
-        tileList.clear();
-        console.log(tileList);
-
-        renderWithAnimation(game.tiles, game.styleTable);
-    });
-
-    document.addEventListener("keydown", async (e) => {
-        e.preventDefault();
-
-        if (e.code == "ArrowLeft") await handleMove('left');
-        if (e.code == "ArrowRight") await handleMove('right');
-        if (e.code == "ArrowUp") await handleMove('up');
-        if (e.code == "ArrowDown") await handleMove('down');
-    });
-
-    const style = document.createElement('style');
-
-    document.head.appendChild(style);
-
-    game.newGame();
-    renderWithAnimation(game.tiles, game.styleTable);
+    renderTiles()
 }
+
+window.addEventListener('load', start)

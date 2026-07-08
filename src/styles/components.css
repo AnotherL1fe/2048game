@@ -1,0 +1,128 @@
+/* ===== CONTROLS ===== */
+.game-controls {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    flex: 1;
+    touch-action: manipulation;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn-new-game {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white;
+    border: none;
+    flex: 2;
+    max-height: 50px;
+}
+
+.btn-new-game:hover {
+    background: linear-gradient(135deg, #ff6b6b, var(--accent));
+    box-shadow: 0 8px 24px rgba(233, 69, 96, 0.3);
+}
+
+/* ===== GAME OVERLAY ===== */
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--border-radius);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: var(--z-overlay);
+}
+
+.game-overlay.active {
+    display: flex;
+}
+
+.game-overlay h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+    text-align: center;
+    padding: 0 20px;
+}
+
+.game-overlay .final-score {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 60px rgba(255, 215, 0, 0.2);
+    margin: 8px 0;
+}
+
+.game-overlay .btn {
+    margin-top: 16px;
+    min-width: 160px;
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+/* ===== SAVE INDICATOR ===== */
+.save-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    font-size: 13px;
+    color: #4fc3f7;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s var(--transition-bounce);
+    pointer-events: none;
+    border: 1px solid rgba(79, 195, 247, 0.2);
+    font-weight: 500;
+    z-index: var(--z-indicator);
+}
+
+.save-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===== MOBILE HINT ===== */
+.mobile-hint {
+    display: none;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+}

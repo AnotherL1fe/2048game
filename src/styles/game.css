@@ -1,0 +1,111 @@
+/* ===== GAME FIELD ===== */
+.game-field {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1;
+    background: var(--bg-field);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--glass-border);
+    box-shadow: 
+        0 20px 60px var(--shadow-dark),
+        inset 0 1px 0 var(--shadow-light);
+    padding: 10px;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.game-back {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.cell {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+}
+
+.game-tiles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    isolation: isolate;
+    padding: 10px;
+}
+
+/* ===== TILES ===== */
+.tile {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-speed) var(--transition-bounce);
+    pointer-events: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    will-change: transform, left, top;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-sizing: border-box;
+    min-width: 30px;
+    min-height: 30px;
+}
+
+/* Tile colors */
+.tile-2 { background: linear-gradient(135deg, #eee4da, #e8d5c4); color: var(--text-dark); }
+.tile-4 { background: linear-gradient(135deg, #ede0c8, #e5d4b8); color: var(--text-dark); }
+.tile-8 { background: linear-gradient(135deg, #f2b179, #f0a060); color: #f9f6f2; }
+.tile-16 { background: linear-gradient(135deg, #f59563, #f08050); color: #f9f6f2; }
+.tile-32 { background: linear-gradient(135deg, #f67c5f, #f06040); color: #f9f6f2; }
+.tile-64 { background: linear-gradient(135deg, #f65e3b, #e04020); color: #f9f6f2; }
+.tile-128 { 
+    background: linear-gradient(135deg, #edcf72, #e8c050);
+    color: #f9f6f2;
+    font-size: 24px;
+    box-shadow: 0 0 30px rgba(237, 207, 114, 0.3);
+}
+.tile-256 { 
+    background: linear-gradient(135deg, #edcc61, #e8b840);
+    color: #f9f6f2;
+    font-size: 24px;
+    box-shadow: 0 0 30px rgba(237, 204, 97, 0.3);
+}
+.tile-512 { 
+    background: linear-gradient(135deg, #edc850, #e8b030);
+    color: #f9f6f2;
+    font-size: 24px;
+    box-shadow: 0 0 30px rgba(237, 200, 80, 0.3);
+}
+.tile-1024 { 
+    background: linear-gradient(135deg, #edc53f, #e8a020);
+    color: #f9f6f2;
+    font-size: 20px;
+    box-shadow: 0 0 40px rgba(237, 197, 63, 0.4);
+}
+.tile-2048 { 
+    background: linear-gradient(135deg, #edc22e, #e89000);
+    color: #f9f6f2;
+    font-size: 20px;
+    box-shadow: 0 0 50px rgba(237, 194, 46, 0.5);
+    animation: tileGlow 2s ease-in-out infinite;
+}
+.tile-super {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24, #f9ca24, #6ab04c, #4a69bd, #6c5ce7);
+    background-size: 300% 300%;
+    color: #fff;
+    font-size: 16px;
+    animation: rainbowGlow 3s ease-in-out infinite, tileGlow 2s ease-in-out infinite;
+}

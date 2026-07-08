@@ -1,0 +1,121 @@
+/* ===== ANIMATIONS ===== */
+
+/* Background */
+@keyframes backgroundFloat {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.05); }
+}
+
+/* Title shimmer */
+@keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Tile appear */
+@keyframes tileAppear {
+    0% { 
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Tile merge */
+@keyframes tileMerge {
+    0% { 
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    30% { 
+        transform: scale(1.25);
+        filter: brightness(1.4);
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+    }
+    100% { 
+        transform: scale(1);
+        filter: brightness(1);
+        box-shadow: none;
+    }
+}
+
+/* Tile glow */
+@keyframes tileGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(237, 194, 46, 0.3); }
+    50% { box-shadow: 0 0 60px rgba(237, 194, 46, 0.6); }
+}
+
+/* Rainbow glow */
+@keyframes rainbowGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Score pop */
+@keyframes scorePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: var(--gold); }
+    100% { transform: scale(1); }
+}
+
+/* Record pop */
+@keyframes recordPop {
+    0% { transform: scale(1); color: var(--gold); }
+    50% { transform: scale(1.5); color: #ff6b6b; }
+    100% { transform: scale(1); color: var(--gold); }
+}
+
+/* Overlay fade */
+@keyframes overlayFade {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Move flash */
+@keyframes moveFlash {
+    0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+    50% { box-shadow: 0 0 30px 5px rgba(255, 215, 0, 0.05); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+}
+
+/* Confetti fall */
+@keyframes confettiFall {
+    0% { 
+        transform: translateY(-20px) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateY(110vh) rotate(720deg) scale(0.5);
+        opacity: 0;
+    }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.tile-new {
+    animation: tileAppear 0.25s var(--transition-bounce) forwards !important;
+    z-index: var(--z-tile-new) !important;
+}
+
+.tile-merged {
+    animation: tileMerge 0.35s var(--transition-bounce) forwards !important;
+    z-index: var(--z-tile-merged) !important;
+}
+
+.score-pop {
+    animation: scorePop 0.25s ease-out;
+}
+
+.record-pop {
+    animation: recordPop 0.4s ease-out;
+}
+
+.game-field.move-flash {
+    animation: moveFlash 0.2s ease-out;
+}
+
+.game-overlay.active {
+    animation: overlayFade 0.4s ease-out;
+}

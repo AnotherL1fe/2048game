@@ -1,0 +1,37 @@
+:root {
+    /* Colors */
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-field: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-dark: #776e65;
+    
+    --gold: #ffd700;
+    --gold-dark: #c8a600;
+    --accent: #e94560;
+    --accent-dark: #c0392b;
+    
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --shadow-dark: rgba(0, 0, 0, 0.5);
+    --shadow-light: rgba(255, 255, 255, 0.03);
+    
+    /* Sizes - синхронизировано с Game.js */
+    --gap: 10px;
+    --field-padding: 10px;
+    --border-radius: 16px;
+    --border-radius-sm: 8px;
+    
+    /* Transitions */
+    --transition-speed: 0.15s;
+    --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    
+    /* Z-index */
+    --z-base: 1;
+    --z-tiles: 10;
+    --z-tile-new: 1000;
+    --z-tile-merged: 2000;
+    --z-overlay: 100;
+    --z-confetti: 9999;
+    --z-indicator: 10000;
+}

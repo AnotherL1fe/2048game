@@ -1,0 +1,206 @@
+/* ===== RESPONSIVE ===== */
+
+/* Планшеты и маленькие экраны */
+@media (max-width: 600px) {
+    .game-wrapper {
+        padding: 12px;
+        gap: 12px;
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
+    
+    .game-title {
+        font-size: 22px;
+    }
+    
+    .score-chip {
+        padding: 4px 10px;
+        min-width: 50px;
+    }
+    
+    .score-chip .score-value {
+        font-size: 16px;
+    }
+    
+    .score-chip .score-label {
+        font-size: 7px;
+    }
+    
+    .btn {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .game-overlay h2 {
+        font-size: 22px;
+    }
+    
+    .game-overlay .final-score {
+        font-size: 36px;
+    }
+    
+    /* Адаптивные тайлы */
+    .tile {
+        font-size: 22px;
+        border-radius: 6px;
+    }
+    .tile-128, .tile-256, .tile-512 {
+        font-size: 18px;
+    }
+    .tile-1024, .tile-2048 {
+        font-size: 15px;
+    }
+    .tile-super {
+        font-size: 12px;
+    }
+}
+
+/* Смартфоны */
+@media (max-width: 420px) {
+    .game-wrapper {
+        padding: 8px;
+        gap: 8px;
+        padding-top: 10px;
+    }
+    
+    .game-header {
+        padding: 8px 12px;
+        border-radius: 12px;
+    }
+    
+    .game-title {
+        font-size: 18px;
+    }
+    
+    .game-subtitle {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+    
+    .score-section {
+        gap: 4px;
+    }
+    
+    .score-chip {
+        padding: 2px 8px;
+        min-width: 40px;
+        border-radius: 6px;
+    }
+    
+    .score-chip .score-value {
+        font-size: 14px;
+    }
+    
+    .score-chip .score-label {
+        font-size: 6px;
+        letter-spacing: 0.5px;
+    }
+    
+    .game-field {
+        border-radius: 12px;
+        padding: 6px;
+    }
+    
+    .game-back {
+        gap: 6px;
+    }
+    
+    .cell {
+        border-radius: 4px;
+    }
+    
+    .game-tiles {
+        top: 6px;
+        left: 6px;
+        right: 6px;
+        bottom: 6px;
+    }
+    
+    /* Адаптивные тайлы для маленьких экранов */
+    .tile {
+        font-size: 18px;
+        border-radius: 4px;
+    }
+    .tile-128, .tile-256, .tile-512 {
+        font-size: 14px;
+    }
+    .tile-1024, .tile-2048 {
+        font-size: 12px;
+    }
+    .tile-super {
+        font-size: 10px;
+    }
+    
+    .game-controls {
+        gap: 4px;
+    }
+    
+    .btn {
+        font-size: 10px;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+    
+    .game-overlay h2 {
+        font-size: 18px;
+    }
+    
+    .game-overlay .final-score {
+        font-size: 28px;
+    }
+    
+    .game-overlay .btn {
+        min-width: 120px;
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+    
+    .mobile-hint {
+        display: block;
+        font-size: 10px;
+        padding: 4px;
+    }
+    
+    .save-indicator {
+        font-size: 10px;
+        padding: 4px 12px;
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 350px) {
+    .game-title {
+        font-size: 15px;
+    }
+    
+    .score-chip .score-value {
+        font-size: 12px;
+    }
+    
+    .tile {
+        font-size: 14px;
+    }
+    
+    .tile-128, .tile-256, .tile-512 {
+        font-size: 11px;
+    }
+    
+    .tile-1024, .tile-2048 {
+        font-size: 10px;
+    }
+    
+    .btn {
+        font-size: 9px;
+        padding: 4px 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

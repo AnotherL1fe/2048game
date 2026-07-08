@@ -1,0 +1,10 @@
+/* ===== MAIN CSS - ИМПОРТ ВСЕХ ФАЙЛОВ ===== */
+
+@import './variables.css';
+@import './base.css';
+@import './header.css';
+@import './game.css';
+@import './animations.css';
+@import './components.css';
+@import './confetti.css';
+@import './responsive.css';
