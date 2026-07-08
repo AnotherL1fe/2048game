@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>2048</title>
+    
+    <!-- Импорт всех CSS файлов -->
+    
+  <script type="module" crossorigin src="/2048game/assets/index-ab5eb496.js"></script>
+  <link rel="stylesheet" href="/2048game/assets/index-0b5ffbe9.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <header class="game-header">
+            <div class="logo-section">
+                <div class="game-title">2048</div>
+                <div class="game-subtitle">Собери 2048!</div>
+            </div>
+            <div class="score-section">
+                <div class="score-chip current-score">
+                    <div class="score-label">Счет</div>
+                    <div class="score-value currentScore">0</div>
+                </div>
+                <div class="score-chip max-score">
+                    <div class="score-label">Рекорд</div>
+                    <div class="score-value maxScore">0</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-controls">
+            <button class="btn btn-new-game">Новая игра</button>
+        </div>
+
+        <div class="game-field" id="gameField">
+            <div class="game-back">
+                <div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div>
+            </div>
+            <div class="game-tiles" id="gameTiles"></div>
+            <div class="game-overlay" id="gameOverlay">
+                <h2 id="overlayTitle">Игра окончена!</h2>
+                <div class="final-score" id="finalScore">0</div>
+                <button class="btn btn-new-game" id="restartBtn">Играть снова</button>
+            </div>
+        </div>
+
+        <div class="mobile-hint">Проведите пальцем для хода</div>
+    </div>
+
+    <div class="save-indicator" id="saveIndicator">Сохранено</div>
+
+    
+</body>
+</html>
