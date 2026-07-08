@@ -189,7 +189,7 @@ MIT License — свободно используйте в любых проек
 ## 📞 Контакты
 
 - GitHub: [@AnotherL1fe](https://github.com/AnotherL1fe)
-- Демо: [https://AnotherL1fe.github.io/2048-game](https://AnotherL1fe.github.io/2048game)
+- Демо: [https://AnotherL1fe.github.io/2048game](https://AnotherL1fe.github.io/2048game)
 
 ---
 
