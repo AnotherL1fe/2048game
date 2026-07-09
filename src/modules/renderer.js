@@ -1,5 +1,13 @@
-let zIndexCounter = 10
+let zIndexCounter = 1
+const MAX_Z_TILE = 50
 export const ANIMATION_DURATION = 200
+
+function nextZ() {
+    const z = zIndexCounter
+    zIndexCounter++
+    if (zIndexCounter > MAX_Z_TILE) zIndexCounter = 1
+    return z
+}
 
 function getCellSize() {
     const gameField = document.getElementById('gameField')
@@ -42,7 +50,7 @@ export function createTileElement(tile) {
     
     el.className = `tile tile-${tile.value} visible`
     el.textContent = tile.value
-    el.style.zIndex = zIndexCounter++
+    el.style.zIndex = nextZ()
     el.dataset.id = tile.id
     el.style.width = `${tileSize}px`
     el.style.height = `${tileSize}px`
@@ -60,7 +68,7 @@ export function createTileElement(tile) {
 
     if (tile.isMerged) {
         el.classList.add('tile-merged')
-        el.style.zIndex = zIndexCounter++
+        el.style.zIndex = nextZ()
     }
 
     return el
@@ -255,7 +263,7 @@ export function renderTiles(game, tileList, moveInfo = null) {
 
                 if (tile.isMerged) {
                     el.classList.add('tile-merged')
-                    el.style.zIndex = zIndexCounter++
+el.style.zIndex = nextZ()
                     setTimeout(() => el.classList.remove('tile-merged'), 350)
                 }
 
@@ -294,7 +302,7 @@ export function forceRecreateTiles(game, tileList) {
     
     gameTiles.innerHTML = ''
     tileList.clear()
-    zIndexCounter = 10
+    zIndexCounter = 1
 
     renderTiles(game, tileList)
 }
