@@ -58,6 +58,16 @@ function createGameWithTiles(tileValues) {
 // Better helper: directly use Tile class
 import Tile from './src/classes/Tile.js'
 
+// Deterministic Math.random for reproducible tests
+let mockRandomValues = [0.01, 0.99, 0.25, 0.75, 0.5, 0.1, 0.9, 0.3, 0.7, 0.6]
+let mockRandomIndex = 0
+const originalRandom = Math.random
+Math.random = function() {
+    const val = mockRandomValues[mockRandomIndex % mockRandomValues.length]
+    mockRandomIndex++
+    return val
+}
+
 function setupBoard(tiles) {
     const g = new Game()
     // Reset to empty
