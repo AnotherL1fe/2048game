@@ -114,12 +114,10 @@
 
 /* ===== ANIMATION CLASSES ===== */
 .tile-new {
-    animation: tileAppear 0.25s var(--transition-bounce) forwards !important;
     z-index: var(--z-tile-new) !important;
 }
 
 .tile-merged {
-    animation: tileMerge 0.35s var(--transition-bounce) forwards !important;
     z-index: var(--z-tile-merged) !important;
 }
 
