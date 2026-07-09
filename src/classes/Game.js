@@ -324,7 +324,19 @@ export default class Game {
                     })
                     targetTile.isMerged = true
                     for (let i = x + 1; i < this.tiles[y].length - 1; i++) {
-                        this.tiles[y][i] = this.tiles[y][i + 1]
+                        const shifted = this.tiles[y][i + 1]
+                        if (shifted) {
+                            const fromX = shifted.x
+                            const fromY = shifted.y
+                            this.tiles[y][i] = shifted
+                            shifted.x = i
+                            shifted.y = y
+                            const existing = this.lastMoveInfo.moved.find(m => m.id === shifted.id)
+                            if (existing) { existing.toX = i; existing.toY = y }
+                            else { this.lastMoveInfo.moved.push({ id: shifted.id, fromX, fromY, toX: i, toY: y }) }
+                        } else {
+                            this.tiles[y][i] = null
+                        }
                     }
                     this.tiles[y][this.tiles[y].length - 1] = null
                     moved = true
@@ -384,7 +396,19 @@ export default class Game {
                     })
                     targetTile.isMerged = true
                     for (let i = x - 1; i > 0; i--) {
-                        this.tiles[y][i] = this.tiles[y][i - 1]
+                        const shifted = this.tiles[y][i - 1]
+                        if (shifted) {
+                            const fromX = shifted.x
+                            const fromY = shifted.y
+                            this.tiles[y][i] = shifted
+                            shifted.x = i
+                            shifted.y = y
+                            const existing = this.lastMoveInfo.moved.find(m => m.id === shifted.id)
+                            if (existing) { existing.toX = i; existing.toY = y }
+                            else { this.lastMoveInfo.moved.push({ id: shifted.id, fromX, fromY, toX: i, toY: y }) }
+                        } else {
+                            this.tiles[y][i] = null
+                        }
                     }
                     this.tiles[y][0] = null
                     moved = true
@@ -444,7 +468,19 @@ export default class Game {
                     })
                     targetTile.isMerged = true
                     for (let i = y + 1; i < this.tiles.length - 1; i++) {
-                        this.tiles[i][x] = this.tiles[i + 1][x]
+                        const shifted = this.tiles[i + 1][x]
+                        if (shifted) {
+                            const fromX = shifted.x
+                            const fromY = shifted.y
+                            this.tiles[i][x] = shifted
+                            shifted.x = x
+                            shifted.y = i
+                            const existing = this.lastMoveInfo.moved.find(m => m.id === shifted.id)
+                            if (existing) { existing.toX = x; existing.toY = i }
+                            else { this.lastMoveInfo.moved.push({ id: shifted.id, fromX, fromY, toX: x, toY: i }) }
+                        } else {
+                            this.tiles[i][x] = null
+                        }
                     }
                     this.tiles[this.tiles.length - 1][x] = null
                     moved = true
@@ -504,7 +540,19 @@ export default class Game {
                     })
                     targetTile.isMerged = true
                     for (let i = y - 1; i > 0; i--) {
-                        this.tiles[i][x] = this.tiles[i - 1][x]
+                        const shifted = this.tiles[i - 1][x]
+                        if (shifted) {
+                            const fromX = shifted.x
+                            const fromY = shifted.y
+                            this.tiles[i][x] = shifted
+                            shifted.x = x
+                            shifted.y = i
+                            const existing = this.lastMoveInfo.moved.find(m => m.id === shifted.id)
+                            if (existing) { existing.toX = x; existing.toY = i }
+                            else { this.lastMoveInfo.moved.push({ id: shifted.id, fromX, fromY, toX: x, toY: i }) }
+                        } else {
+                            this.tiles[i][x] = null
+                        }
                     }
                     this.tiles[0][x] = null
                     moved = true

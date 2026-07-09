@@ -1,7 +1,8 @@
 import Game from './classes/Game.js'
-import { renderTiles, forceRecreateTiles, ANIMATION_DURATION } from './modules/renderer.js'
+import { renderTiles, forceRecreateTiles, updateTileSizes, ANIMATION_DURATION } from './modules/renderer.js'
 import { setupKeyboardControls, setupTouchControls, setupButtonRipples } from './modules/controller.js'
 import { createConfetti } from './modules/confetti.js'
+import { setupResizeHandler } from './modules/resizeHandler.js'
 import { playMove, playMerge, playNewTile, playGameOver, playWin, playRecord, playButtonClick, setSoundEnabled, isSoundEnabled } from './modules/sound.js'
 
 const game = new Game()
@@ -135,6 +136,7 @@ if (soundToggle) {
 setupKeyboardControls(handleMove)
 setupTouchControls(handleMove)
 setupButtonRipples()
+setupResizeHandler(game, tileList, updateTileSizes)
 
 // === КНОПКИ ===
 document.querySelector('.btn-new-game').addEventListener('click', () => {

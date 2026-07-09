@@ -551,14 +551,49 @@
 
 /* ===== LIGHT THEME OVERRIDES (explicit class) ===== */
 body.light-theme {
-    --bg-primary: #f5f5f5;
-    --bg-secondary: #e8e8e8;
-    --bg-field: rgba(0, 0, 0, 0.05);
-    --text-primary: #1a1a2e;
-    --text-secondary: #666;
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --shadow-dark: rgba(0, 0, 0, 0.1);
-    --shadow-light: rgba(255, 255, 255, 0.5);
+    --bg-primary: #2a2a3e;
+    --bg-secondary: #232336;
+    --bg-field: rgba(255, 255, 255, 0.04);
+    --text-primary: #d4cbb5;
+    --text-secondary: #9a9288;
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --shadow-dark: rgba(0, 0, 0, 0.4);
+    --shadow-light: rgba(255, 255, 255, 0.02);
+
+    /* Warm tile colors for light theme */
+    --tile-2-bg: #3a3530;
+    --tile-2-text: #c8b898;
+    --tile-2-glow: rgba(200, 184, 152, 0.15);
+    --tile-4-bg: #4a3f30;
+    --tile-4-text: #d8c49a;
+    --tile-4-glow: rgba(216, 196, 154, 0.15);
+    --tile-8-bg: #6a4530;
+    --tile-8-text: #e8c8aa;
+    --tile-8-glow: rgba(232, 200, 170, 0.2);
+    --tile-16-bg: #8a4a2a;
+    --tile-16-text: #f0d0b0;
+    --tile-16-glow: rgba(240, 208, 176, 0.25);
+    --tile-32-bg: #a05020;
+    --tile-32-text: #ffe0c0;
+    --tile-32-glow: rgba(255, 224, 192, 0.3);
+    --tile-64-bg: #b85a10;
+    --tile-64-text: #ffe8c8;
+    --tile-64-glow: rgba(255, 232, 200, 0.35);
+    --tile-128-bg: #7a5a20;
+    --tile-128-text: #e8d490;
+    --tile-128-glow: rgba(232, 212, 144, 0.3);
+    --tile-256-bg: #8a6a18;
+    --tile-256-text: #f0d888;
+    --tile-256-glow: rgba(240, 216, 136, 0.35);
+    --tile-512-bg: #9a7a10;
+    --tile-512-text: #f8e080;
+    --tile-512-glow: rgba(248, 224, 128, 0.35);
+    --tile-1024-bg: #aa8a08;
+    --tile-1024-text: #ffe878;
+    --tile-1024-glow: rgba(255, 232, 120, 0.4);
+    --tile-2048-bg: #c8a020;
+    --tile-2048-text: #ffffff;
+    --tile-2048-glow: rgba(200, 160, 32, 0.5);
 }
 
 body.light-theme .game-header {
@@ -568,7 +603,7 @@ body.light-theme .game-header {
 }
 
 body.light-theme .score-chip {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--glass-border);
 }
 
@@ -577,11 +612,11 @@ body.light-theme .score-chip .score-value {
 }
 
 body.light-theme .score-chip.current-score .score-value {
-    color: #e94560;
+    color: #e96060;
 }
 
 body.light-theme .score-chip.max-score .score-value {
-    color: #f0a500;
+    color: #e0b040;
 }
 
 body.light-theme .game-field {
@@ -591,17 +626,17 @@ body.light-theme .game-field {
 }
 
 body.light-theme .cell {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 body.light-theme .btn {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.04);
     color: var(--text-primary);
     border-color: var(--glass-border);
 }
 
 body.light-theme .btn:hover {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 24px var(--shadow-dark);
 }
 
@@ -639,19 +674,19 @@ body.light-theme .btn-save:hover {
 }
 
 body.light-theme .game-overlay {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(30, 30, 45, 0.92);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
 body.light-theme .game-overlay h2 {
-    color: #1a1a2e;
-    text-shadow: 0 0 40px rgba(240, 165, 0, 0.3);
+    color: #d4cbb5;
+    text-shadow: 0 0 40px rgba(200, 180, 140, 0.3);
 }
 
 body.light-theme .game-overlay .final-score {
-    color: #f0a500;
-    text-shadow: 0 0 60px rgba(240, 165, 0, 0.2);
+    color: #e0b040;
+    text-shadow: 0 0 60px rgba(224, 176, 64, 0.2);
 }
 
 body.light-theme .btn-continue {
@@ -666,9 +701,9 @@ body.light-theme .btn-continue:hover {
 }
 
 body.light-theme .save-indicator {
-    background: rgba(255, 255, 255, 0.95);
-    color: #1a1a2e;
-    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(40, 40, 55, 0.9);
+    color: #d4cbb5;
+    border-color: rgba(255, 255, 255, 0.06);
 }
 
 body.light-theme .game-stats {
@@ -677,7 +712,7 @@ body.light-theme .game-stats {
 
 body.light-theme .game-stats .moves-count,
 body.light-theme .game-stats .time-count {
-    color: #f0a500;
+    color: #e0b040;
 }
 
 body.light-theme .game-footer {
@@ -685,12 +720,12 @@ body.light-theme .game-footer {
 }
 
 body.light-theme .game-footer .btn {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.04);
     border-color: var(--glass-border);
 }
 
 body.light-theme .game-footer .btn:hover {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 body.light-theme .mobile-hint {

@@ -15,8 +15,6 @@ function getCellSize() {
     return { cellSize, gap }
 }
 
-let cachedCellSize = null
-
 function getTilePosition(x, y) {
     const { cellSize, gap } = getCellSize()
     const offset = cellSize + gap
@@ -27,9 +25,7 @@ function getTilePosition(x, y) {
 }
 
 function getTileSize() {
-    if (cachedCellSize) return cachedCellSize
     const { cellSize } = getCellSize()
-    cachedCellSize = cellSize
     return cellSize
 }
 
@@ -96,20 +92,34 @@ export function animateTileMove(el, fromX, fromY, toX, toY, isMerge = false) {
 
 export function animateTileMerge(el, x, y, newValue) {
     const pos = getTilePosition(x, y)
+
+    // Remove CSS animation class to prevent conflict with JS transforms
+    el.classList.remove('tile-merged')
+
+    // Phase 1: collapse (scale 1 → 0)
+    el.style.transition = 'none'
+    el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1)`
+    void el.offsetWidth
+
     el.style.transition = `transform ${ANIMATION_DURATION}ms var(--transition-bounce)`
-    el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1.2)`
-    
+    el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(0)`
+
+    // Phase 2: update value and reappear (scale 0 → 1)
     setTimeout(() => {
-        el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1)`
-        // Update the tile's appearance after merge animation
         if (newValue !== undefined) {
             el.textContent = newValue
-            // Update color class
             const colorClasses = el.className.split(' ').filter(c => !c.startsWith('tile-') && c !== 'visible')
             el.className = colorClasses.join(' ')
             el.classList.add(`tile-${newValue}`)
             el.classList.add('visible')
         }
+
+        el.style.transition = 'none'
+        el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(0)`
+        void el.offsetWidth
+
+        el.style.transition = `transform ${ANIMATION_DURATION}ms var(--transition-bounce)`
+        el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1)`
     }, ANIMATION_DURATION)
 }
 
