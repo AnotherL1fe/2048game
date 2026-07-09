@@ -50,6 +50,7 @@
     --tile-2048-text: #ffffff;
     --tile-2048-glow: rgba(200, 160, 32, 0.5);
     
+
     --gap: 10px;
     --field-padding: 10px;
     --border-radius: 16px;
@@ -60,8 +61,8 @@
     
     --z-base: 1;
     --z-tiles: 10;
-    --z-tile-new: 1000;
-    --z-tile-merged: 2000;
+    --z-tile-new: 60;
+    --z-tile-merged: 70;
     --z-overlay: 100;
     --z-confetti: 9999;
     --z-indicator: 10000;

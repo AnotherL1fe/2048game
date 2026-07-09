@@ -1,17 +1,19 @@
-let zIndexCounter = 100
+let zIndexCounter = 10
 export const ANIMATION_DURATION = 200 // ms
 
 // Calculate cell size dynamically based on game field
 function getCellSize() {
     const gameField = document.getElementById('gameField')
     if (!gameField) return { cellSize: 80, gap: 10 }
-    
-    const computedStyle = getComputedStyle(gameField)
-    const padding = parseFloat(computedStyle.padding) || 10
-    const width = gameField.clientWidth - padding * 2
-    const gap = 10 // from CSS
-    const cellSize = (width - gap * 3) / 4
-    
+
+    const gameBack = gameField.querySelector('.game-back')
+    const computedBack = gameBack ? getComputedStyle(gameBack) : null
+    const gap = computedBack ? parseFloat(computedBack.gap) || 10 : 10
+
+    const padding = parseFloat(getComputedStyle(gameField).paddingLeft) || 10
+    const fieldWidth = gameField.clientWidth - padding * 2
+    const cellSize = (fieldWidth - gap * 3) / 4
+
     return { cellSize, gap }
 }
 
@@ -96,13 +98,17 @@ export function animateTileMerge(el, x, y, newValue) {
     // Remove CSS animation class to prevent conflict with JS transforms
     el.classList.remove('tile-merged')
 
-    // Phase 1: collapse (scale 1 → 0)
+    // Phase 1: collapse (scale 1 → 0) — preserve current translate
+    const currentTransform = el.style.transform
+    const translateMatch = currentTransform.match(/translate\([^)]+\)/)
+    const baseTranslate = translateMatch ? translateMatch[0] : `translate(${pos.x}px, ${pos.y}px)`
+
     el.style.transition = 'none'
-    el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1)`
+    el.style.transform = `${baseTranslate} scale(1)`
     void el.offsetWidth
 
     el.style.transition = `transform ${ANIMATION_DURATION}ms var(--transition-bounce)`
-    el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(0)`
+    el.style.transform = `${baseTranslate} scale(0)`
 
     // Phase 2: update value and reappear (scale 0 → 1)
     setTimeout(() => {
@@ -115,11 +121,11 @@ export function animateTileMerge(el, x, y, newValue) {
         }
 
         el.style.transition = 'none'
-        el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(0)`
+        el.style.transform = `${baseTranslate} scale(0)`
         void el.offsetWidth
 
         el.style.transition = `transform ${ANIMATION_DURATION}ms var(--transition-bounce)`
-        el.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1)`
+        el.style.transform = `${baseTranslate} scale(1)`
     }, ANIMATION_DURATION)
 }
 
@@ -169,8 +175,6 @@ export function renderTiles(game, tileList, moveInfo = null) {
         }
     }
 
-    zIndexCounter = 100
-    
     // If we have move info, animate the moves
     if (moveInfo) {
         // First, animate moved tiles (including tiles that will merge)
@@ -198,19 +202,24 @@ for (const merge of moveInfo.merged) {
             }
         }
         
-        // Handle source tiles that were merged - they should disappear after moving to target
+        // Handle source tiles that were merged - defer fade-out to let slide animation start first
         for (const merge of moveInfo.merged) {
             for (const fromId of merge.fromIds) {
                 const sourceTile = tileList.get(fromId)
                 if (sourceTile) {
-                    // Source tile has already animated to merge position, now fade it out
-                    sourceTile.el.style.transition = 'opacity 0.1s ease-out, transform 0.1s ease-out'
-                    sourceTile.el.style.opacity = '0'
-                    sourceTile.el.style.transform += ' scale(0.8)'
+                    const sid = fromId
                     setTimeout(() => {
-                        if (sourceTile.el.parentNode) sourceTile.el.remove()
-                    }, 100)
-                    tileList.delete(fromId)
+                        const st = tileList.get(sid)
+                        if (st) {
+                            st.el.style.transition = 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                            st.el.style.opacity = '0'
+                            st.el.style.transform += ' scale(0.8)'
+                            setTimeout(() => {
+                                if (st.el.parentNode) st.el.remove()
+                            }, 100)
+                            tileList.delete(sid)
+                        }
+                    }, ANIMATION_DURATION)
                 }
             }
         }
@@ -297,8 +306,9 @@ export function forceRecreateTiles(game, tileList) {
     
     gameTiles.innerHTML = ''
     tileList.clear()
-    zIndexCounter = 100
-    
+    zIndexCounter = 10
+
+
     renderTiles(game, tileList)
 }
 

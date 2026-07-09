@@ -1,5 +1,5 @@
 import Game from './classes/Game.js'
-import { renderTiles, forceRecreateTiles, updateTileSizes, ANIMATION_DURATION } from './modules/renderer.js'
+import { renderTiles, updateTileSizes, ANIMATION_DURATION } from './modules/renderer.js'
 import { setupKeyboardControls, setupTouchControls, setupButtonRipples } from './modules/controller.js'
 import { createConfetti } from './modules/confetti.js'
 import { setupResizeHandler } from './modules/resizeHandler.js'
@@ -36,14 +36,15 @@ async function handleMove(direction) {
         void gameField.offsetWidth
         gameField.classList.add('move-flash')
         
-        // Wait for animation to complete
-        await new Promise(resolve => setTimeout(resolve, ANIMATION_DURATION + 50))
+        // Wait for all animations to complete (including merge 2-phase animation)
+        const extraWait = result.moveInfo && result.moveInfo.merged.length > 0 ? ANIMATION_DURATION : 0
+        await new Promise(resolve => setTimeout(resolve, ANIMATION_DURATION + extraWait + 50))
         
         // Play merge sound if there were merges
         if (result.moveInfo && result.moveInfo.merged.length > 0) {
             playMerge()
             // Play record sound if record was broken
-            if (game.score > game.maxScore) {
+            if (result.recordBroken) {
                 playRecord()
             }
         } else {
@@ -242,12 +243,6 @@ function initGame() {
         continueBtn.style.display = 'none'
     }
 }
-
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        forceRecreateTiles(game, tileList)
-    }, 100)
-})
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {

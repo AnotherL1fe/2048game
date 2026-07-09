@@ -146,7 +146,7 @@ export default class Game {
     }
 
     undo() {
-        if (this.history.length === 0 || this.gameOver) return false
+        if (this.history.length === 0) return false
         
         const previousState = this.history.pop()
         this.score = previousState.score
@@ -156,13 +156,14 @@ export default class Game {
                 tileData ? new Tile(tileData.value, tileData.x, tileData.y, tileData.id) : null
             )
         )
+        this.gameOver = false
         this.resetTileFlags()
         this.saveGame()
         return true
     }
 
     canUndo() {
-        return this.history.length > 0 && !this.gameOver
+        return this.history.length > 0
     }
 
     getElapsedTime() {
@@ -225,6 +226,7 @@ export default class Game {
     move(direction) {
         if (this.gameOver) return { moved: false, moveInfo: null }
 
+        const scoreBefore = this.score
         this.captureStateForUndo()
         this.moved = false
         this.lastMoveInfo = { moved: [], merged: [], new: [] }
@@ -237,7 +239,9 @@ export default class Game {
             case 'down': moved = this.moveDown(); break
         }
 
+        let recordBroken = false
         if (moved) {
+            recordBroken = this.score > scoreBefore && this.score > this.maxScore
             this.moves++
             const emptyBefore = this.findEmptyCoords()
             this.spawnTile()
@@ -262,16 +266,16 @@ export default class Game {
                 this.saveGame()
                 window.dispatchEvent(new CustomEvent('gameWon'))
             }
-
-            if (!this.canMove()) {
-                this.gameOver = true
-                this.saveGame()
-                window.dispatchEvent(new CustomEvent('gameOver', {
-                    detail: { score: this.score }
-                }))
-            }
         }
-        return { moved, moveInfo: this.lastMoveInfo }
+
+        if (!this.canMove()) {
+            this.gameOver = true
+            this.saveGame()
+            window.dispatchEvent(new CustomEvent('gameOver', {
+                detail: { score: this.score }
+            }))
+        }
+        return { moved, moveInfo: this.lastMoveInfo, recordBroken }
     }
 
     moveLeft() {

@@ -12,7 +12,7 @@
     box-shadow: 
         0 20px 60px var(--shadow-dark),
         inset 0 1px 0 var(--shadow-light);
-    padding: 10px;
+    padding: var(--field-padding);
     overflow: hidden;
     touch-action: none;
 }
@@ -23,7 +23,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    gap: 10px;
+    gap: var(--gap);
 }
 
 .cell {
@@ -33,10 +33,10 @@
 
 .game-tiles {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    top: var(--field-padding);
+    left: var(--field-padding);
+    right: var(--field-padding);
+    bottom: var(--field-padding);
     pointer-events: none;
 }
 
